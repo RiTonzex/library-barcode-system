@@ -47,16 +47,16 @@ export const StatsCharts: React.FC<Props> = React.memo(({
       <div className="lg:col-span-8 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-7 shadow-xs flex flex-col justify-between">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
           <div>
-            <h3 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-              <Activity className="w-5 h-5 text-indigo-600" />
-              กราฟจำนวนคนเข้าใช้ตามช่วงเวลา (08:00 - 16:00 น.)
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+              <Activity className="w-5 h-5 text-blue-600" />
+              <span>กราฟจำนวนคนเข้าใช้ตามช่วงเวลา (08:00 - 16:00 น.)</span>
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-sm text-slate-500 mt-1 font-medium">
               แสดงสถิติจำนวนคนเข้าใช้ห้องสมุดในแต่ละชั่วโมงตลอดทั้งวัน
             </p>
           </div>
           {peakHour && peakHour !== 'N/A' && (
-            <span className="self-start sm:self-auto text-xs font-bold px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 whitespace-nowrap">
+            <span className="self-start sm:self-auto text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-xl bg-blue-50 text-blue-800 border border-blue-200 whitespace-nowrap">
               คนเข้าเยอะสุดช่วง: {peakHour} น.
             </span>
           )}
@@ -67,21 +67,21 @@ export const StatsCharts: React.FC<Props> = React.memo(({
             <AreaChart data={hourlyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
               <defs>
                 <linearGradient id="softAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#4f46e5" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#2563eb" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#2563eb" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
               <XAxis
                 dataKey="hour"
                 stroke="#94a3b8"
-                tick={{ fill: '#64748b', fontSize: 11 }}
+                tick={{ fill: '#475569', fontSize: 13, fontWeight: 500 }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
                 stroke="#94a3b8"
-                tick={{ fill: '#64748b', fontSize: 11 }}
+                tick={{ fill: '#475569', fontSize: 13, fontWeight: 500 }}
                 axisLine={false}
                 tickLine={false}
                 allowDecimals={false}
@@ -89,21 +89,21 @@ export const StatsCharts: React.FC<Props> = React.memo(({
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#ffffff',
-                  borderColor: '#e2e8f0',
+                  borderColor: '#cbd5e1',
                   borderRadius: '1rem',
-                  fontSize: '13px',
+                  fontSize: '14px',
                   boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
                   color: '#0f172a',
                   fontWeight: '600',
                 }}
                 labelStyle={{ color: '#0f172a', fontWeight: 'bold' }}
-                itemStyle={{ color: '#4f46e5' }}
+                itemStyle={{ color: '#2563eb' }}
               />
               <Area
                 type="monotone"
                 dataKey="count"
                 name="จำนวนคน (ครั้ง)"
-                stroke="#4f46e5"
+                stroke="#2563eb"
                 strokeWidth={2.5}
                 fillOpacity={1}
                 fill="url(#softAreaGradient)"
@@ -157,9 +157,9 @@ export const StatsCharts: React.FC<Props> = React.memo(({
         {/* Top Faculty Breakdown */}
         <div className="border-t border-slate-100 pt-5">
           <div className="flex items-center justify-between mb-3.5">
-            <h4 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-              <Building2 className="w-4 h-4 text-indigo-600" />
-              สัดส่วนตามคณะ (ยอดนิยม)
+            <h4 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-blue-600" />
+              <span>สัดส่วนตามคณะ (ยอดนิยม)</span>
             </h4>
           </div>
 

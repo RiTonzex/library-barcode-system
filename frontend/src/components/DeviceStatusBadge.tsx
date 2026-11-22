@@ -16,42 +16,44 @@ export const DeviceStatusBadge: React.FC<Props> = React.memo(({
   const isEspOnline = deviceStatus?.is_online ?? false;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
-      {/* WebSocket Status */}
+    <div className="flex flex-wrap items-center gap-2 text-sm font-medium">
+      {/* สถานะระบบเชื่อมต่อ */}
       <div
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-colors backdrop-blur-sm ${
+        className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border transition-colors ${
           wsConnected
-            ? 'bg-emerald-500/20 text-emerald-100 border-emerald-400/30'
-            : 'bg-amber-500/20 text-amber-100 border-amber-400/30'
+            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+            : 'bg-amber-50 text-amber-800 border-amber-200'
         }`}
+        title={wsConnected ? 'ระบบเชื่อมต่ออินเทอร์เน็ตสมบูรณ์' : 'กำลังพยายามเชื่อมต่อใหม่'}
       >
-        <Server className="w-3.5 h-3.5 text-white/90" />
+        <Server className="w-4 h-4 shrink-0 text-emerald-600" />
         <span
-          className={`inline-block w-2 h-2 rounded-full ${
-            wsConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+          className={`inline-block w-2.5 h-2.5 rounded-full ${
+            wsConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
           }`}
         />
-        <span>{wsConnected ? 'เซิร์ฟเวอร์: เชื่อมต่อสด' : `กำลังต่อใหม่ (${reconnectAttempts})...`}</span>
+        <span className="font-semibold text-xs sm:text-sm">
+          {wsConnected ? 'ระบบออนไลน์' : `กำลังเชื่อมต่อ (${reconnectAttempts})...`}
+        </span>
       </div>
 
-      {/* ESP32 Status */}
+      {/* สถานะเครื่องอ่านบาร์โค้ด */}
       <div
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-colors backdrop-blur-sm ${
+        className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border transition-colors ${
           isEspOnline
-            ? 'bg-white/15 text-white border-white/25'
-            : 'bg-white/10 text-blue-100/80 border-white/15'
+            ? 'bg-blue-50 text-blue-900 border-blue-200'
+            : 'bg-slate-100 text-slate-700 border-slate-200'
         }`}
+        title={isEspOnline ? 'เครื่องอ่านบาร์โค้ดฮาร์ดแวร์พร้อมใช้งาน' : 'เครื่องอ่านบาร์โค้ดไม่ได้เชื่อมต่อ'}
       >
-        <Cpu className="w-3.5 h-3.5 text-white/90" />
+        <Cpu className="w-4 h-4 shrink-0 text-slate-500" />
         <span
-          className={`inline-block w-2 h-2 rounded-full ${
-            isEspOnline ? 'bg-emerald-400 animate-pulse' : 'bg-blue-300/50'
+          className={`inline-block w-2.5 h-2.5 rounded-full ${
+            isEspOnline ? 'bg-blue-600 animate-pulse' : 'bg-slate-400'
           }`}
         />
-        <span>
-          {isEspOnline
-            ? `เครื่องสแกน ESP32 (${deviceStatus?.rssi ? `${deviceStatus.rssi} dBm` : 'ออนไลน์'})`
-            : 'เครื่องสแกน: ออฟไลน์'}
+        <span className="font-semibold text-xs sm:text-sm">
+          {isEspOnline ? 'เครื่องสแกนพร้อม' : 'เครื่องสแกน: ออฟไลน์'}
         </span>
       </div>
     </div>

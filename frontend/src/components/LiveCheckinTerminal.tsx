@@ -93,29 +93,29 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
   return (
     <div className="rounded-3xl border border-slate-200/90 bg-white shadow-xs overflow-hidden transition-all">
       {/* Top Hero Bar: Input & Scanner Field */}
-      <div className="p-6 sm:p-8 bg-gradient-to-r from-slate-50/90 via-white to-blue-50/30 border-b border-slate-100">
+      <div className="p-6 sm:p-8 bg-slate-50/70 border-b border-slate-200/80">
         {/* Title & Live Status Indicator */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-600/20">
-              <Barcode className="w-7 h-7" />
+            <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
+              <Barcode className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                จุดสแกนบัตรเข้าห้องสมุด
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                จุดบันทึกการเข้าใช้ห้องสมุด
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                ยิงบาร์โค้ดบัตร หรือ พิมพ์รหัสนักศึกษา 10 หลักด้านล่าง
+              <p className="text-sm text-slate-500 font-medium">
+                แตะบัตรนักศึกษาที่เครื่องสแกน หรือพิมพ์รหัส 10 หลักด้านล่าง
               </p>
             </div>
           </div>
           {isDeviceOnline ? (
-            <div className="flex items-center gap-2 self-start sm:self-auto px-4 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-extrabold shadow-2xs">
+            <div className="flex items-center gap-2 self-start sm:self-auto px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold shadow-2xs">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              เครื่องพร้อมใช้งาน (สแกนได้ทันที)
+              เครื่องสแกนพร้อมทำงาน
             </div>
           ) : (
-            <div className="flex items-center gap-2 self-start sm:self-auto px-4 py-2 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs sm:text-sm font-extrabold shadow-2xs">
+            <div className="flex items-center gap-2 self-start sm:self-auto px-4 py-2 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-sm font-semibold shadow-2xs">
               <Keyboard className="w-4 h-4 text-blue-600" />
               <span>โหมดพิมพ์รหัสนักศึกษา</span>
             </div>
@@ -131,37 +131,41 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
               inputMode="numeric"
               maxLength={20}
               autoComplete="off"
-              placeholder="พิมพ์รหัสนักศึกษา 10 หลัก เช่น 6812732119..."
+              placeholder="พิมพ์รหัสนักศึกษา 10 หลัก (เช่น 6812732119)..."
               value={barcodeInput}
               onChange={(e) => {
                 const numericOnly = e.target.value.replace(/\D/g, '').slice(0, 20);
                 setBarcodeInput(numericOnly);
               }}
               disabled={isSubmitting}
-              className="w-full px-6 sm:px-7 py-4 sm:py-5 text-xl sm:text-3xl font-mono font-black text-slate-900 bg-slate-50/50 hover:bg-white focus:bg-white border-2 border-slate-200 hover:border-blue-300 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 rounded-2xl shadow-inner placeholder:text-slate-300 placeholder:font-sans placeholder:font-normal placeholder:text-base sm:placeholder:text-xl transition-all"
+              className="w-full px-6 py-4 sm:py-5 text-2xl sm:text-3xl font-mono font-bold text-slate-900 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 rounded-2xl shadow-inner placeholder:text-slate-400 placeholder:font-sans placeholder:font-normal placeholder:text-base sm:placeholder:text-lg transition-all"
             />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting || !barcodeInput.trim()}
-            className="px-8 sm:px-10 py-4 sm:py-5 rounded-2xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-black text-base sm:text-lg flex items-center justify-center gap-3 shadow-md shadow-blue-600/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+            className={`px-8 sm:px-10 py-4 sm:py-5 rounded-2xl font-bold text-base sm:text-lg flex items-center justify-center gap-2.5 transition-all shadow-sm whitespace-nowrap active:scale-[0.98] ${
+              !barcodeInput.trim() || isSubmitting
+                ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20'
+            }`}
           >
             <CheckCircle2 className="w-5 h-5" />
-            {isSubmitting ? 'กำลังตรวจสอบ...' : 'บันทึกการเข้า'}
+            <span>{isSubmitting ? 'กำลังตรวจสอบ...' : 'บันทึกเวลาเข้า'}</span>
           </button>
         </form>
       </div>
 
       {/* Bottom Area: Live Student Pass Display (เฉพาะข้อมูลถูกต้องเท่านั้นที่จะแสดงผล) */}
-      <div className="px-6 sm:px-8 py-6 min-h-[195px] sm:min-h-[205px] lg:h-[380px] flex flex-col justify-center">
+      <div className="px-6 sm:px-8 py-6 sm:py-8 flex flex-col justify-center transition-all">
         {isValidScan ? (
-          /* 🟢 กรณีข้อมูลถูกต้อง: แสดงการ์ดข้อมูลนักศึกษาครบถ้วน */
-          <div className="w-full h-full flex flex-col justify-center gap-6 sm:gap-8 py-2 animate-fadeIn">
+          /* 🟢 กรณีข้อมูลถูกต้อง: แสดงการ์ดข้อมูลนักศึกษาครบถ้วน ตัวหนังสือขนาดใหญ่ สบายตา */
+          <div className="w-full flex flex-col justify-center gap-6 py-1 animate-fadeIn">
             {/* Student ID Hero & Timestamp */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <span className="text-2xs font-extrabold text-slate-400 uppercase tracking-widest block mb-1">
+                <span className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                   รหัสนักศึกษา (STUDENT ID)
                 </span>
                 <div className="flex flex-wrap items-center gap-3.5">
@@ -169,7 +173,7 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
                     {latestScan.student_code}
                   </h2>
                   {latestScan.study_year && latestScan.study_year !== '-' && (
-                    <span className="inline-flex items-center px-4 py-1.5 sm:py-2 rounded-2xl text-base sm:text-xl font-black bg-blue-600 text-white shadow-md shadow-blue-600/25 whitespace-nowrap">
+                    <span className="inline-flex items-center px-4 py-1.5 sm:py-2 rounded-xl text-base sm:text-lg font-bold bg-blue-600 text-white shadow-sm whitespace-nowrap">
                       {latestScan.study_year}
                     </span>
                   )}
@@ -179,87 +183,70 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
               {/* Timestamp */}
               {formattedTime && (
                 <div className="self-start sm:self-auto">
-                  <span className="inline-flex items-center gap-2 text-xs sm:text-sm text-slate-500 font-bold bg-slate-100 px-4 py-2 rounded-2xl border border-slate-200">
-                    <Clock className="w-4 h-4 text-slate-400" />
-                    เวลา {formattedTime} น.
+                  <span className="inline-flex items-center gap-2 text-sm sm:text-base text-slate-700 font-semibold bg-slate-100 px-4 py-2.5 rounded-xl border border-slate-200">
+                    <Clock className="w-4 h-4 text-slate-500" />
+                    เวลาเข้า: {formattedTime} น.
                   </span>
                 </div>
               )}
             </div>
 
             {/* 4 Metadata Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-              <div className="px-5 py-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 flex flex-col justify-between shadow-2xs hover:border-slate-300 transition-colors h-[100px]">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-2xs font-extrabold text-slate-400 uppercase tracking-wider">คณะ</span>
-                  <Building2 className="w-4 h-4 text-indigo-500" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between h-[105px]">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs sm:text-sm font-semibold text-slate-500">คณะ</span>
+                  <Building2 className="w-4 h-4 text-blue-600" />
                 </div>
-                <p className="text-sm sm:text-base font-black text-slate-900 leading-snug break-words" title={latestScan.faculty}>
+                <p className="text-base sm:text-lg font-bold text-slate-900 leading-snug break-words" title={latestScan.faculty}>
                   {latestScan.faculty || '-'}
                 </p>
               </div>
 
-              <div className="px-5 py-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 flex flex-col justify-between shadow-2xs hover:border-slate-300 transition-colors h-[100px]">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-2xs font-extrabold text-slate-400 uppercase tracking-wider">สาขาวิชา</span>
-                  <BookOpen className="w-4 h-4 text-blue-500" />
+              <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between h-[105px]">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs sm:text-sm font-semibold text-slate-500">สาขาวิชา</span>
+                  <BookOpen className="w-4 h-4 text-blue-600" />
                 </div>
-                <p className="text-sm sm:text-base font-black text-slate-900 leading-snug break-words" title={latestScan.department}>
+                <p className="text-base sm:text-lg font-bold text-slate-900 leading-snug break-words" title={latestScan.department}>
                   {latestScan.department || '-'}
                 </p>
               </div>
 
-              <div className="px-5 py-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 flex flex-col justify-between shadow-2xs hover:border-slate-300 transition-colors h-[100px]">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-2xs font-extrabold text-slate-400 uppercase tracking-wider">ปีการศึกษาที่เข้า</span>
-                  <Calendar className="w-4 h-4 text-emerald-500" />
+              <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between h-[105px]">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs sm:text-sm font-semibold text-slate-500">ปีการศึกษาที่เข้า</span>
+                  <Calendar className="w-4 h-4 text-emerald-600" />
                 </div>
-                <p className="text-sm sm:text-base font-mono font-black text-slate-900">
+                <p className="text-base sm:text-lg font-mono font-bold text-slate-900">
                   {latestScan.entry_year && latestScan.entry_year !== '-' ? `พ.ศ. ${latestScan.entry_year}` : '-'}
                 </p>
               </div>
 
-              <div className="px-5 py-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 flex flex-col justify-between shadow-2xs hover:border-slate-300 transition-colors h-[100px]">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-2xs font-extrabold text-slate-400 uppercase tracking-wider">รูปแบบหลักสูตร</span>
+              <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between h-[105px]">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs sm:text-sm font-semibold text-slate-500">รูปแบบหลักสูตร</span>
                   <GraduationCap className="w-4 h-4 text-blue-600" />
                 </div>
-                <p className="text-sm sm:text-base font-black text-blue-700 leading-snug">
+                <p className="text-base sm:text-lg font-bold text-blue-700 leading-snug">
                   {latestScan.degree_level || '-'}
                 </p>
               </div>
             </div>
           </div>
-        ) : isDeviceOnline ? (
-          <div className="w-full flex flex-col items-center justify-center text-center space-y-2.5">
-            <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-2xs">
-              <Scan className="w-7 h-7 text-blue-600 animate-pulse" />
-            </div>
-            <h3 className="text-lg sm:text-xl font-black text-slate-800">
-              พร้อมรับการสแกนบาร์โค้ดบัตรนักศึกษา
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-md">
-              นำบาร์โค้ดบัตรนักศึกษาวางที่หัวอ่าน หรือพิมพ์รหัส 10 หลักในช่องด้านบน
-            </p>
-          </div>
         ) : (
-          <div className="w-full flex flex-col items-center justify-center text-center space-y-2.5">
-            <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-2xs">
-              <Keyboard className="w-7 h-7 text-blue-600" />
+          /* ⚪ สถานะสแตนด์บาย: สุภาพ สะอาดตา สบายตา ไม่มีพื้นที่ว่างรบกวน */
+          <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-4 py-5 px-6 rounded-2xl bg-slate-50 border border-slate-200 text-center sm:text-left transition-all">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+              <Scan className="w-6 h-6 animate-pulse" />
             </div>
-            <h3 className="text-lg sm:text-xl font-black text-slate-900">
-              กรุณาพิมพ์รหัสนักศึกษา 10 หลักในช่องด้านบน
-            </h3>
-            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs sm:text-sm text-slate-500 font-medium max-w-2xl mx-auto pt-0.5">
-              <span>ระบบพร้อมบันทึกการเข้าใช้ทันที</span>
-              <span className="text-slate-300 hidden sm:inline">•</span>
-              <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-                พิมพ์รหัส 10 หลักแล้วกด
-                <kbd className="inline-flex items-center gap-1 font-mono font-bold text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-lg shadow-2xs">
-                  Enter ↵
-                </kbd>
-                เพื่อเข้าห้องสมุด
-              </span>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-800">
+                ระบบพร้อมรับการสแกนบัตรนักศึกษา
+              </h3>
+              <p className="text-sm text-slate-500 font-medium">
+                ท่านสามารถนำบัตรมาวางที่เครื่องสแกนได้ทันที หรือพิมพ์รหัส 10 หลักในช่องด้านบนแล้วกดปุ่ม Enter
+              </p>
             </div>
           </div>
         )}
@@ -269,10 +256,10 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
       {feedback.type && feedback.message && (
         <div className="fixed bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-toast-up">
           <div
-            className={`flex items-center gap-3 px-6 py-3 rounded-2xl shadow-xl backdrop-blur-md border text-sm sm:text-base font-semibold transition-all ${
+            className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl shadow-xl border text-sm sm:text-base font-semibold transition-all ${
               feedback.type === 'success'
-                ? 'bg-slate-900/90 text-white border-emerald-500/40'
-                : 'bg-slate-900/90 text-slate-200 border-slate-700'
+                ? 'bg-slate-900 text-white border-emerald-500'
+                : 'bg-slate-900 text-slate-100 border-amber-500'
             }`}
           >
             {feedback.type === 'success' ? (

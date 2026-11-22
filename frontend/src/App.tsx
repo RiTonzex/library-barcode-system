@@ -291,26 +291,22 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col">
-      {/* Top Header */}
-      {/* Top Navigation Header - Modern University Blue Theme */}
-      <header className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white sticky top-0 z-40 shadow-md border-b border-blue-800/30">
+      {/* Top Header - Minimal & Clean Design (สุภาพ สบายตา เหมาะกับทุกวัย) */}
+      <header className="bg-white border-b border-slate-200/90 sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          {/* Brand */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center shadow-inner text-white border border-white/20">
-              <BookOpen className="w-5 h-5 text-white" />
+          {/* Brand & System Title */}
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
+              <BookOpen className="w-6 h-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-black text-white tracking-tight">
-                  ระบบสถิติการเข้าใช้ห้องสมุด
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                  ระบบบันทึกเวลาเข้าใช้ห้องสมุด
                 </h1>
-                <span className="hidden sm:inline-flex text-2xs px-2.5 py-0.5 rounded-full bg-emerald-400/25 text-emerald-200 border border-emerald-300/30 font-bold backdrop-blur-xs">
-                  Live
-                </span>
               </div>
-              <p className="text-xs text-blue-100/80 font-medium">
-                Library Access & Demographic Analytics
+              <p className="text-sm text-slate-500 font-medium">
+                มหาวิทยาลัยราชภัฏศรีสะเกษ (SSKRU Library)
               </p>
             </div>
           </div>
@@ -323,41 +319,45 @@ export const App: React.FC = () => {
               deviceStatus={deviceStatus}
             />
 
-            {/* ปุ่มเปิด Pop-up สถิติ */}
+            {/* ปุ่มเปิด Pop-up สถิติ (ขนาดใหญ่ กดง่าย ข้อความชัดเจน) */}
             <button
               onClick={() => {
                 setIsStatsModalOpen(true);
                 fetchStats();
               }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold bg-white text-blue-700 hover:bg-blue-50 rounded-xl transition-all shadow-sm active:scale-95"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl transition-all border border-blue-200 shadow-2xs active:scale-95"
+              title="เปิดดูสรุปสถิติจำนวนผู้เข้าใช้ห้องสมุดประจำวัน"
             >
-              <BarChart3 className="w-3.5 h-3.5 text-blue-600" />
-              <span>ดูสถิติประจำวัน</span>
+              <BarChart3 className="w-4 h-4 text-blue-600 shrink-0" />
+              <span>สรุปสถิติประจำวัน</span>
             </button>
 
+            {/* ปุ่มส่งข้อมูล Google Sheets แบบกดเอง */}
             <button
               onClick={handleManualSheetsSync}
               disabled={isSyncingSheets}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-white/15 hover:bg-white/25 text-white rounded-xl transition-all border border-white/20 backdrop-blur-sm active:scale-95 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl transition-all border border-slate-200 shadow-2xs active:scale-95 disabled:opacity-50"
+              title="ส่งสรุปสถิติประจำวันขึ้น Google Sheets ทันที"
             >
-              <Sheet className="w-3.5 h-3.5 text-emerald-300" />
+              <Sheet className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>{isSyncingSheets ? 'กำลังซิงก์...' : 'ซิงก์ Sheets'}</span>
             </button>
 
+            {/* ปุ่มเต็มจอ (Kiosk Mode) */}
             <button
               onClick={toggleFullscreen}
-              title={isFullscreen ? 'ออกจากโหมดเต็มจอ' : 'เปิดโหมดเต็มจอ (Kiosk Mode)'}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-white/15 hover:bg-white/25 text-white rounded-xl transition-all border border-white/20 backdrop-blur-sm active:scale-95"
+              title={isFullscreen ? 'ออกจากโหมดเต็มจอ' : 'เปิดโหมดเต็มจอ'}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl transition-all border border-slate-200 shadow-2xs active:scale-95"
             >
               {isFullscreen ? (
                 <>
-                  <Minimize className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">ย่อจอ</span>
+                  <Minimize className="w-4 h-4 text-slate-600 shrink-0" />
+                  <span>ย่อจอปกติ</span>
                 </>
               ) : (
                 <>
-                  <Maximize className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">เต็มจอ</span>
+                  <Maximize className="w-4 h-4 text-slate-600 shrink-0" />
+                  <span>โหมดเต็มจอ</span>
                 </>
               )}
             </button>
@@ -410,11 +410,11 @@ export const App: React.FC = () => {
                   <BarChart3 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-black text-slate-900">
-                    สถิติผู้เข้าใช้ห้องสมุดประจำวัน (Analytics Dashboard)
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+                    สรุปสถิติผู้เข้าใช้ห้องสมุดประจำวัน
                   </h3>
-                  <p className="text-xs text-slate-400">
-                    ข้อมูลอัปเดตแบบเรียลไทม์ • ปิดยอดอัตโนมัติเวลา 16:30 น.
+                  <p className="text-sm text-slate-500 mt-0.5">
+                    ข้อมูลอัปเดตแบบเรียลไทม์ • ระบบปิดยอดอัตโนมัติเวลา 16:30 น.
                   </p>
                 </div>
               </div>
@@ -423,16 +423,16 @@ export const App: React.FC = () => {
                 <button
                   onClick={fetchStats}
                   disabled={isRefreshingStats}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all active:scale-95 disabled:opacity-50"
-                  title="รีเฟรชข้อมูลสถิติ"
+                  className="flex items-center gap-2 px-3.5 py-2 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all active:scale-95 disabled:opacity-50"
+                  title="รีเฟรชข้อมูลสถิติล่าสุด"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingStats ? 'animate-spin' : ''}`} />
-                  <span className="hidden sm:inline">รีเฟรช</span>
+                  <RefreshCw className={`w-4 h-4 ${isRefreshingStats ? 'animate-spin' : ''}`} />
+                  <span>รีเฟรช</span>
                 </button>
                 <button
                   onClick={() => setIsStatsModalOpen(false)}
-                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-                  title="ปิดหน้าต่าง (ESC)"
+                  className="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                  title="ปิดหน้าต่างนี้"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -443,9 +443,9 @@ export const App: React.FC = () => {
             <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
               {/* 4 KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 items-stretch">
-                <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+                <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <span className="text-sm font-semibold text-slate-500">
                       ยอดเข้าใช้วันนี้
                     </span>
                     <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600">
@@ -454,20 +454,20 @@ export const App: React.FC = () => {
                   </div>
                   <div className="mt-4">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight font-mono">
+                      <span className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight font-mono">
                         {stats.today_total_scans}
                       </span>
-                      <span className="text-xs text-slate-500 font-semibold">ครั้ง</span>
+                      <span className="text-sm text-slate-600 font-semibold">ครั้ง</span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1.5">
-                      การเข้าใช้ห้องสมุดทั้งหมดวันนี้
+                    <p className="text-sm text-slate-500 mt-1">
+                      จำนวนการสแกนเข้าห้องสมุดทั้งหมดวันนี้
                     </p>
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+                <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <span className="text-sm font-semibold text-slate-500">
                       นักศึกษาไม่ซ้ำคน
                     </span>
                     <div className="p-2.5 rounded-2xl bg-amber-50 text-amber-600">
@@ -476,23 +476,23 @@ export const App: React.FC = () => {
                   </div>
                   <div className="mt-4">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight font-mono">
+                      <span className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight font-mono">
                         {stats.today_unique_students}
                       </span>
-                      <span className="text-xs text-slate-500 font-semibold">คน</span>
+                      <span className="text-sm text-slate-600 font-semibold">คน</span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1.5">
-                      ผู้เข้าใช้จริงตามรหัสบัตร
+                    <p className="text-sm text-slate-500 mt-1">
+                      จำนวนผู้เข้าใช้จริงตามรหัสบัตร
                     </p>
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-blue-200/90 bg-gradient-to-b from-blue-50/50 to-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+                <div className="rounded-3xl border border-blue-200 bg-blue-50/30 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
+                    <span className="text-sm font-semibold text-blue-800">
                       ชั้นปีเข้ามากที่สุด
                     </span>
-                    <div className="p-2.5 rounded-2xl bg-blue-100/80 text-blue-600">
+                    <div className="p-2.5 rounded-2xl bg-blue-100 text-blue-600">
                       <GraduationCap className="w-5 h-5" />
                     </div>
                   </div>
@@ -500,32 +500,32 @@ export const App: React.FC = () => {
                     {topYear ? (
                       <>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-3xl sm:text-4xl font-black text-blue-950 tracking-tight font-mono">
+                          <span className="text-3xl sm:text-4xl font-bold text-blue-950 tracking-tight font-mono">
                             {topYear.year}
                           </span>
-                          <span className="text-xs text-blue-700 font-bold">อันดับ 1</span>
+                          <span className="text-sm text-blue-700 font-bold">อันดับ 1</span>
                         </div>
                         <div className="mt-1.5">
-                          <span className="inline-flex items-center text-xs font-bold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-md">
+                          <span className="inline-flex items-center text-xs sm:text-sm font-bold text-blue-800 bg-blue-100 px-2.5 py-1 rounded-lg">
                             {topYear.count} ครั้ง ({stats.today_total_scans > 0 ? Math.round((topYear.count / stats.today_total_scans) * 100) : 0}%)
                           </span>
                         </div>
                       </>
                     ) : (
                       <>
-                        <span className="text-xl font-bold text-slate-400 block">ยังไม่มีข้อมูล</span>
-                        <p className="text-xs text-slate-400 mt-1.5">รอการสแกนเข้าใช้</p>
+                        <span className="text-lg font-bold text-slate-400 block">ยังไม่มีข้อมูล</span>
+                        <p className="text-sm text-slate-400 mt-1">รอการสแกนเข้าใช้</p>
                       </>
                     )}
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-emerald-200/90 bg-gradient-to-b from-emerald-50/40 to-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+                <div className="rounded-3xl border border-emerald-200 bg-emerald-50/30 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                    <span className="text-sm font-semibold text-emerald-800">
                       คณะยอดนิยม
                     </span>
-                    <div className="p-2.5 rounded-2xl bg-emerald-100/80 text-emerald-700">
+                    <div className="p-2.5 rounded-2xl bg-emerald-100 text-emerald-700">
                       <Building2 className="w-5 h-5" />
                     </div>
                   </div>
@@ -533,16 +533,16 @@ export const App: React.FC = () => {
                     {topFaculty ? (
                       <>
                         <h4
-                          className="text-base sm:text-lg font-black text-slate-900 leading-snug break-words"
+                          className="text-base sm:text-lg font-bold text-slate-900 leading-snug break-words"
                           title={topFaculty.name}
                         >
                           {topFaculty.name}
                         </h4>
-                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                          <span className="inline-flex items-center text-xs font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-md">
+                        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                          <span className="inline-flex items-center text-xs sm:text-sm font-bold text-emerald-900 bg-emerald-100 px-2.5 py-1 rounded-lg">
                             {topFaculty.count} ครั้ง
                           </span>
-                          <span className="text-xs font-medium text-emerald-700">
+                          <span className="text-xs sm:text-sm font-medium text-emerald-700">
                             สัดส่วน {stats.today_total_scans > 0 ? Math.round((topFaculty.count / stats.today_total_scans) * 100) : 0}%
                           </span>
                         </div>
