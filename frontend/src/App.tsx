@@ -292,23 +292,24 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col">
       {/* Top Header */}
-      <header className="border-b border-slate-200/80 bg-white sticky top-0 z-40 shadow-2xs backdrop-blur-md">
+      {/* Top Navigation Header - Modern University Blue Theme */}
+      <header className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white sticky top-0 z-40 shadow-md border-b border-blue-800/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-xs text-white">
-              <BookOpen className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center shadow-inner text-white border border-white/20">
+              <BookOpen className="w-5 h-5 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                <h1 className="text-base sm:text-lg font-black text-white tracking-tight">
                   ระบบสถิติการเข้าใช้ห้องสมุด
                 </h1>
-                <span className="hidden sm:inline-flex text-2xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
+                <span className="hidden sm:inline-flex text-2xs px-2.5 py-0.5 rounded-full bg-emerald-400/25 text-emerald-200 border border-emerald-300/30 font-bold backdrop-blur-xs">
                   Live
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-blue-100/80 font-medium">
                 Library Access & Demographic Analytics
               </p>
             </div>
@@ -328,25 +329,25 @@ export const App: React.FC = () => {
                 setIsStatsModalOpen(true);
                 fetchStats();
               }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-xs active:scale-95"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold bg-white text-blue-700 hover:bg-blue-50 rounded-xl transition-all shadow-sm active:scale-95"
             >
-              <BarChart3 className="w-3.5 h-3.5" />
+              <BarChart3 className="w-3.5 h-3.5 text-blue-600" />
               <span>ดูสถิติประจำวัน</span>
             </button>
 
             <button
               onClick={handleManualSheetsSync}
               disabled={isSyncingSheets}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-all shadow-2xs active:scale-95 disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-white/15 hover:bg-white/25 text-white rounded-xl transition-all border border-white/20 backdrop-blur-sm active:scale-95 disabled:opacity-50"
             >
-              <Sheet className="w-3.5 h-3.5 text-emerald-400" />
+              <Sheet className="w-3.5 h-3.5 text-emerald-300" />
               <span>{isSyncingSheets ? 'กำลังซิงก์...' : 'ซิงก์ Sheets'}</span>
             </button>
 
             <button
               onClick={toggleFullscreen}
               title={isFullscreen ? 'ออกจากโหมดเต็มจอ' : 'เปิดโหมดเต็มจอ (Kiosk Mode)'}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl transition-all shadow-2xs active:scale-95 border border-indigo-200"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-white/15 hover:bg-white/25 text-white rounded-xl transition-all border border-white/20 backdrop-blur-sm active:scale-95"
             >
               {isFullscreen ? (
                 <>
