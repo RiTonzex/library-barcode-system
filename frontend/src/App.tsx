@@ -4,13 +4,16 @@ import {
   Sparkles,
   Sheet,
   BookOpen,
-  Building2,
   GraduationCap,
   Maximize,
   Minimize,
   BarChart3,
   X,
   RefreshCw,
+  Clock,
+  ChevronDown,
+  ArrowUp,
+  TrendingUp,
 } from 'lucide-react';
 import { useWebSocket } from './hooks/useWebSocket';
 import { LiveCheckinTerminal } from './components/LiveCheckinTerminal';
@@ -44,6 +47,27 @@ export const App: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [isRefreshingStats, setIsRefreshingStats] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  // Monitor Scroll for Back-to-Top Button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Detect Fullscreen (F11 or HTML5 requestFullscreen)
   useEffect(() => {
@@ -101,7 +125,7 @@ export const App: React.FC = () => {
     document.body.className = 'theme-light bg-[#f8fafc] text-slate-800 antialiased';
   }, []);
 
-  // 1. Fetch Dashboard Stats (ดึงเฉพาะเมื่อเปิด Pop-up เพื่อไม่ให้หน้าแรกแล็ค)
+  // 1. Fetch Dashboard Stats (ดึงข้อมูลสถิติจริงจากระบบ)
   const fetchStats = useCallback(async () => {
     setIsRefreshingStats(true);
     try {
@@ -143,16 +167,12 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  // Load initial data on mount
   useEffect(() => {
+    fetchStats();
     fetchRecentLogs();
     fetchDeviceStatus();
-  }, [fetchRecentLogs, fetchDeviceStatus]);
-
-  useEffect(() => {
-    if (isStatsModalOpen) {
-      fetchStats();
-    }
-  }, [isStatsModalOpen, fetchStats]);
+  }, [fetchStats, fetchRecentLogs, fetchDeviceStatus]);
 
   // 4. WebSocket Event Callbacks (เฉพาะข้อมูลที่ถูกต้องเท่านั้นจึงจะแสดงผล)
   const handleNewScan = useCallback(
@@ -176,12 +196,9 @@ export const App: React.FC = () => {
         status: event.status,
       };
       setRecentLogs((prev) => [newItem, ...prev.slice(0, 299)]);
-
-      if (isStatsModalOpen) {
-        fetchStats();
-      }
+      fetchStats();
     },
-    [isStatsModalOpen, fetchStats]
+    [fetchStats]
   );
 
   const handleDeviceHeartbeat = useCallback((statusData: DeviceStatus) => {
@@ -244,10 +261,7 @@ export const App: React.FC = () => {
           status: data.status,
         };
         setRecentLogs((prev) => [newLog, ...prev.slice(0, 299)]);
-
-        if (isStatsModalOpen) {
-          fetchStats();
-        }
+        fetchStats();
         return true;
       } else {
         return false;
@@ -290,53 +304,61 @@ export const App: React.FC = () => {
   }, [stats.year_distribution]);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col">
-      {/* Top Header - Minimal & Clean Design (สุภาพ สบายตา เหมาะกับทุกวัย) */}
-      <header className="bg-white border-b border-slate-200/90 sticky top-0 z-40 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans">
+      {/* ========================================================================= */}
+      {/* TOP HEADER - Modern Minimal & Clean Design (สุภาพ สบายตา เหมาะกับทุกวัย) */}
+      {/* ========================================================================= */}
+      <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3.5">
           {/* Brand & System Title */}
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-700 to-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/15 shrink-0">
               <BookOpen className="w-6 h-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                  ระบบบันทึกเวลาเข้าใช้ห้องสมุด
-                </h1>
-              </div>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                ระบบบันทึกเวลาเข้าใช้ห้องสมุด
+              </h1>
               <p className="text-sm text-slate-500 font-medium">
                 มหาวิทยาลัยราชภัฏศรีสะเกษ (SSKRU Library)
               </p>
             </div>
           </div>
 
-          {/* Quick Actions & Status */}
+          {/* Quick Actions & Navigation Bar */}
           <div className="flex items-center gap-2.5 flex-wrap">
+            {/* สถานะระบบเชื่อมต่อ & สถานะเครื่องสแกน */}
             <DeviceStatusBadge
               wsConnected={isConnected}
               reconnectAttempts={reconnectAttempts}
               deviceStatus={deviceStatus}
             />
 
-            {/* ปุ่มเปิด Pop-up สถิติ (ขนาดใหญ่ กดง่าย ข้อความชัดเจน) */}
+            {/* ปุ่มนำทาง: สรุปสถิติ (เลื่อนจอลงไปที่ส่วนสถิติ) */}
             <button
-              onClick={() => {
-                setIsStatsModalOpen(true);
-                fetchStats();
-              }}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl transition-all border border-blue-200 shadow-2xs active:scale-95"
-              title="เปิดดูสรุปสถิติจำนวนผู้เข้าใช้ห้องสมุดประจำวัน"
+              onClick={() => scrollToSection('stats-section')}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl transition-all border border-blue-200/90 shadow-2xs active:scale-95"
+              title="เลื่อนลงเพื่อดูสรุปสถิติประจำวัน"
             >
               <BarChart3 className="w-4 h-4 text-blue-600 shrink-0" />
-              <span>สรุปสถิติประจำวัน</span>
+              <span>สรุปสถิติ</span>
             </button>
 
-            {/* ปุ่มส่งข้อมูล Google Sheets แบบกดเอง */}
+            {/* ปุ่มนำทาง: ประวัติการเข้า (เลื่อนจอลงไปที่ตารางประวัติ) */}
+            <button
+              onClick={() => scrollToSection('logs-section')}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl transition-all border border-slate-200/90 shadow-2xs active:scale-95"
+              title="เลื่อนลงเพื่อดูตารางประวัติการเข้าใช้งานล่าสุด"
+            >
+              <Clock className="w-4 h-4 text-slate-600 shrink-0" />
+              <span>ประวัติการเข้า</span>
+            </button>
+
+            {/* ปุ่มส่งข้อมูล Google Sheets */}
             <button
               onClick={handleManualSheetsSync}
               disabled={isSyncingSheets}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl transition-all border border-slate-200 shadow-2xs active:scale-95 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl transition-all border border-emerald-200/90 shadow-2xs active:scale-95 disabled:opacity-50"
               title="ส่งสรุปสถิติประจำวันขึ้น Google Sheets ทันที"
             >
               <Sheet className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -347,17 +369,17 @@ export const App: React.FC = () => {
             <button
               onClick={toggleFullscreen}
               title={isFullscreen ? 'ออกจากโหมดเต็มจอ' : 'เปิดโหมดเต็มจอ'}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl transition-all border border-slate-200 shadow-2xs active:scale-95"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl transition-all border border-slate-200/90 shadow-2xs active:scale-95"
             >
               {isFullscreen ? (
                 <>
                   <Minimize className="w-4 h-4 text-slate-600 shrink-0" />
-                  <span>ย่อจอปกติ</span>
+                  <span>ย่อจอ</span>
                 </>
               ) : (
                 <>
                   <Maximize className="w-4 h-4 text-slate-600 shrink-0" />
-                  <span>โหมดเต็มจอ</span>
+                  <span>เต็มจอ</span>
                 </>
               )}
             </button>
@@ -365,65 +387,246 @@ export const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main
-        className={`flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col ${
-          isFullscreen ? 'justify-center gap-7 sm:gap-9 py-6 sm:py-8' : 'py-7 space-y-7'
-        }`}
-      >
-        {/* ========================================================================= */}
-        {/* 1. HERO CHECK-IN TERMINAL (เฉพาะข้อมูลถูกต้องที่จะขึ้นในการ์ด)            */}
-        {/* ========================================================================= */}
-        <section>
+      {/* ========================================================================= */}
+      {/* 1. ABOVE-THE-FOLD: หน้าจอแรก (แสดงเฉพาะจุดบันทึกการเข้าใช้ห้องสมุด)        */}
+      {/* ========================================================================= */}
+      <section className="min-h-[calc(100vh-80px)] flex flex-col justify-between py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        <div className="flex-1 flex flex-col justify-center max-w-5xl mx-auto w-full py-4">
           <LiveCheckinTerminal
             latestScan={latestScan}
             onScan={handleScanBarcode}
             isSubmitting={isScanning}
             isDeviceOnline={deviceStatus?.is_online ?? false}
           />
-        </section>
+        </div>
 
-        {/* ========================================================================= */}
-        {/* 2. RECENT ATTENDANCE TABLE (ตารางประวัติการเข้าใช้งานล่าสุด)              */}
-        {/* ========================================================================= */}
+        {/* Scroll-down Invitation (แนะนำให้เลื่อนลงเพื่อดูสถิติและประวัติ) */}
         {!isFullscreen && (
-          <section className="fullscreen-hide">
-            <RecentLogsTable
-              logs={recentLogs}
-              apiBaseUrl={API_BASE}
-              onRefresh={fetchRecentLogs}
-            />
-          </section>
+          <div className="fullscreen-hide flex flex-col items-center justify-center pt-2 pb-4 text-center">
+            <button
+              onClick={() => scrollToSection('stats-section')}
+              className="group flex flex-col items-center gap-1.5 text-slate-400 hover:text-blue-600 transition-colors focus:outline-hidden"
+              title="เลื่อนลงเพื่อดูสรุปสถิติประจำวันและประวัติการเข้าใช้งาน"
+            >
+              <span className="text-sm sm:text-base font-semibold tracking-wide">
+                เลื่อนลงเพื่อดูสรุปสถิติและประวัติการเข้าใช้งาน
+              </span>
+              <div className="p-2 rounded-full bg-white border border-slate-200/80 shadow-2xs group-hover:border-blue-300 group-hover:bg-blue-50 transition-all animate-bounce">
+                <ChevronDown className="w-5 h-5 text-slate-500 group-hover:text-blue-600" />
+              </div>
+            </button>
+          </div>
         )}
-      </main>
+      </section>
 
       {/* ========================================================================= */}
-      {/* 3. STATS MODAL / POP-UP (แยกสถิติไว้ใน Pop-up เพื่อไม่ให้แล็ค)             */}
+      {/* BELOW-THE-FOLD CONTENT (ต้องเลื่อนหน้าจอลงมาจึงจะพบส่วนนี้)                 */}
+      {/* ========================================================================= */}
+      {!isFullscreen && (
+        <div className="fullscreen-hide border-t border-slate-200/80 bg-slate-100/50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-12 sm:space-y-16">
+            {/* ========================================================================= */}
+            {/* 2. SECTION: สรุปสถิติผู้เข้าใช้ห้องสมุดประจำวัน (Real Data & Soft Colors)   */}
+            {/* ========================================================================= */}
+            <section id="stats-section" className="scroll-mt-24 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-2xl bg-blue-100 text-blue-700">
+                      <BarChart3 className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                        สรุปสถิติผู้เข้าใช้ห้องสมุดประจำวัน
+                      </h2>
+                      <p className="text-base text-slate-500 font-medium mt-0.5">
+                        ข้อมูลสถิติจริงจากระบบประจำวัน • รีเฟรชข้อมูลอัตโนมัติเมื่อมีการสแกน
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5 self-start sm:self-auto">
+                  <button
+                    onClick={fetchStats}
+                    disabled={isRefreshingStats}
+                    className="flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all shadow-2xs active:scale-95 disabled:opacity-50"
+                    title="รีเฟรชข้อมูลสถิติล่าสุด"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isRefreshingStats ? 'animate-spin' : ''}`} />
+                    <span>รีเฟรชสถิติ</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsStatsModalOpen(true);
+                      fetchStats();
+                    }}
+                    className="flex items-center gap-2 px-5 py-2.5 text-base font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-sm active:scale-95"
+                    title="เปิดกราฟวิเคราะห์รายชั่วโมงและสัดส่วนคณะ"
+                  >
+                    <TrendingUp className="w-5 h-5" />
+                    <span>ดูกราฟวิเคราะห์เชิงลึก</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 4 Modern Soft Color Metric Cards (แสดงข้อมูลจริง ชัดเจน ทุกวัยอ่านง่าย) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {/* 1. ยอดเข้าใช้วันนี้ (Soft Blue) */}
+                <div className="rounded-3xl border border-blue-200/80 bg-blue-50/60 p-6 sm:p-7 shadow-xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-base font-bold text-blue-900">
+                      ยอดเข้าใช้วันนี้
+                    </span>
+                    <div className="p-3 rounded-2xl bg-blue-600 text-white shadow-xs">
+                      <Users className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <div className="mt-5">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl sm:text-5xl font-black text-slate-900 font-mono tracking-tight">
+                        {stats.today_total_scans}
+                      </span>
+                      <span className="text-lg text-slate-700 font-bold">ครั้ง</span>
+                    </div>
+                    <p className="text-sm text-slate-600 font-medium mt-1.5">
+                      จำนวนการสแกนเข้าห้องสมุดทั้งหมดวันนี้
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2. นักศึกษาไม่ซ้ำคน (Soft Amber) */}
+                <div className="rounded-3xl border border-amber-200/80 bg-amber-50/60 p-6 sm:p-7 shadow-xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-base font-bold text-amber-900">
+                      นักศึกษาไม่ซ้ำคน
+                    </span>
+                    <div className="p-3 rounded-2xl bg-amber-500 text-white shadow-xs">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <div className="mt-5">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl sm:text-5xl font-black text-slate-900 font-mono tracking-tight">
+                        {stats.today_unique_students}
+                      </span>
+                      <span className="text-lg text-slate-700 font-bold">คน</span>
+                    </div>
+                    <p className="text-sm text-slate-600 font-medium mt-1.5">
+                      จำนวนผู้เข้าใช้จริงตามรหัสบัตรนักศึกษา
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3. ชั้นปีเข้ามากที่สุด (Soft Indigo) */}
+                <div className="rounded-3xl border border-indigo-200/80 bg-indigo-50/60 p-6 sm:p-7 shadow-xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-base font-bold text-indigo-900">
+                      ชั้นปีเข้ามากที่สุด
+                    </span>
+                    <div className="p-3 rounded-2xl bg-indigo-600 text-white shadow-xs">
+                      <GraduationCap className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <div className="mt-5">
+                    {topYear ? (
+                      <>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-3xl sm:text-4xl font-black text-indigo-950 font-mono">
+                            {topYear.year}
+                          </span>
+                          <span className="text-base text-indigo-700 font-bold">อันดับ 1</span>
+                        </div>
+                        <div className="mt-2">
+                          <span className="inline-flex items-center text-sm font-bold text-indigo-900 bg-indigo-100/90 px-3 py-1 rounded-xl">
+                            {topYear.count} ครั้ง ({stats.today_total_scans > 0 ? Math.round((topYear.count / stats.today_total_scans) * 100) : 0}%)
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-2xl font-bold text-slate-400 block">ยังไม่มีข้อมูล</span>
+                        <p className="text-sm text-slate-500 mt-1">รอการบันทึกเข้าใช้ในวันนี้</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* 4. ช่วงเวลาที่มีผู้เข้าใช้มากที่สุด (Soft Emerald) */}
+                <div className="rounded-3xl border border-emerald-200/80 bg-emerald-50/60 p-6 sm:p-7 shadow-xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-base font-bold text-emerald-900">
+                      ช่วงเวลาที่มีผู้เข้าใช้มากที่สุด
+                    </span>
+                    <div className="p-3 rounded-2xl bg-emerald-600 text-white shadow-xs">
+                      <Clock className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <div className="mt-5">
+                    {stats.peak_hour && stats.peak_hour !== 'N/A' && stats.peak_hour !== '-' ? (
+                      <>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl sm:text-3xl font-black text-emerald-950 font-mono">
+                            {stats.peak_hour}
+                          </span>
+                        </div>
+                        <p className="text-sm text-emerald-800 font-semibold mt-1.5">
+                          {topFaculty ? `คณะหลัก: ${topFaculty.name}` : 'ช่วงเวลาที่มีความหนาแน่นสูงสุด'}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-2xl font-bold text-slate-400 block">08:00 - 16:00 น.</span>
+                        <p className="text-sm text-slate-500 mt-1">เวลาเปิดให้บริการห้องสมุด</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* ========================================================================= */}
+            {/* 3. SECTION: ประวัติการเข้าใช้งานห้องสมุดล่าสุด (Recent Logs Table)          */}
+            {/* ========================================================================= */}
+            <section id="logs-section" className="scroll-mt-24">
+              <RecentLogsTable
+                logs={recentLogs}
+                apiBaseUrl={API_BASE}
+                onRefresh={fetchRecentLogs}
+              />
+            </section>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 4. STATS DEEP-DIVE MODAL (กราฟวิเคราะห์รายชั่วโมง & สัดส่วนคณะ)            */}
       {/* ========================================================================= */}
       {isStatsModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
           <div className="relative w-full max-w-6xl max-h-[92vh] bg-[#f8fafc] rounded-3xl border border-slate-200 shadow-2xl flex flex-col overflow-hidden animate-scaleIn">
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4.5 bg-white border-b border-slate-200/90 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600">
-                  <BarChart3 className="w-5 h-5" />
+            <div className="flex items-center justify-between px-6 py-5 bg-white border-b border-slate-200/90 shrink-0">
+              <div className="flex items-center gap-3.5">
+                <div className="p-3 rounded-2xl bg-blue-100 text-blue-700">
+                  <BarChart3 className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg sm:text-xl font-bold text-slate-900">
-                    สรุปสถิติผู้เข้าใช้ห้องสมุดประจำวัน
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
+                    กราฟวิเคราะห์และสถิติผู้เข้าใช้ห้องสมุด
                   </h3>
-                  <p className="text-sm text-slate-500 mt-0.5">
-                    ข้อมูลอัปเดตแบบเรียลไทม์ • ระบบปิดยอดอัตโนมัติเวลา 16:30 น.
+                  <p className="text-sm text-slate-500 font-medium mt-0.5">
+                    ประมวลผลข้อมูลจริงจากระบบ • เวลาทำการ 08:00 - 16:00 น.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <button
                   onClick={fetchStats}
                   disabled={isRefreshingStats}
-                  className="flex items-center gap-2 px-3.5 py-2 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all active:scale-95 disabled:opacity-50"
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all active:scale-95 disabled:opacity-50"
                   title="รีเฟรชข้อมูลสถิติล่าสุด"
                 >
                   <RefreshCw className={`w-4 h-4 ${isRefreshingStats ? 'animate-spin' : ''}`} />
@@ -434,130 +637,14 @@ export const App: React.FC = () => {
                   className="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
                   title="ปิดหน้าต่างนี้"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
             </div>
 
             {/* Modal Body */}
             <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
-              {/* 4 KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 items-stretch">
-                <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-slate-500">
-                      ยอดเข้าใช้วันนี้
-                    </span>
-                    <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600">
-                      <Users className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight font-mono">
-                        {stats.today_total_scans}
-                      </span>
-                      <span className="text-sm text-slate-600 font-semibold">ครั้ง</span>
-                    </div>
-                    <p className="text-sm text-slate-500 mt-1">
-                      จำนวนการสแกนเข้าห้องสมุดทั้งหมดวันนี้
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-slate-500">
-                      นักศึกษาไม่ซ้ำคน
-                    </span>
-                    <div className="p-2.5 rounded-2xl bg-amber-50 text-amber-600">
-                      <Sparkles className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight font-mono">
-                        {stats.today_unique_students}
-                      </span>
-                      <span className="text-sm text-slate-600 font-semibold">คน</span>
-                    </div>
-                    <p className="text-sm text-slate-500 mt-1">
-                      จำนวนผู้เข้าใช้จริงตามรหัสบัตร
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-3xl border border-blue-200 bg-blue-50/30 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-blue-800">
-                      ชั้นปีเข้ามากที่สุด
-                    </span>
-                    <div className="p-2.5 rounded-2xl bg-blue-100 text-blue-600">
-                      <GraduationCap className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    {topYear ? (
-                      <>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-3xl sm:text-4xl font-bold text-blue-950 tracking-tight font-mono">
-                            {topYear.year}
-                          </span>
-                          <span className="text-sm text-blue-700 font-bold">อันดับ 1</span>
-                        </div>
-                        <div className="mt-1.5">
-                          <span className="inline-flex items-center text-xs sm:text-sm font-bold text-blue-800 bg-blue-100 px-2.5 py-1 rounded-lg">
-                            {topYear.count} ครั้ง ({stats.today_total_scans > 0 ? Math.round((topYear.count / stats.today_total_scans) * 100) : 0}%)
-                          </span>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-lg font-bold text-slate-400 block">ยังไม่มีข้อมูล</span>
-                        <p className="text-sm text-slate-400 mt-1">รอการสแกนเข้าใช้</p>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <div className="rounded-3xl border border-emerald-200 bg-emerald-50/30 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-emerald-800">
-                      คณะยอดนิยม
-                    </span>
-                    <div className="p-2.5 rounded-2xl bg-emerald-100 text-emerald-700">
-                      <Building2 className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    {topFaculty ? (
-                      <>
-                        <h4
-                          className="text-base sm:text-lg font-bold text-slate-900 leading-snug break-words"
-                          title={topFaculty.name}
-                        >
-                          {topFaculty.name}
-                        </h4>
-                        <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                          <span className="inline-flex items-center text-xs sm:text-sm font-bold text-emerald-900 bg-emerald-100 px-2.5 py-1 rounded-lg">
-                            {topFaculty.count} ครั้ง
-                          </span>
-                          <span className="text-xs sm:text-sm font-medium text-emerald-700">
-                            สัดส่วน {stats.today_total_scans > 0 ? Math.round((topFaculty.count / stats.today_total_scans) * 100) : 0}%
-                          </span>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-xl font-bold text-slate-400 block">ยังไม่มีข้อมูล</span>
-                        <p className="text-xs text-slate-400 mt-1.5">รอการสแกนเข้าใช้</p>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Charts */}
+              {/* Detailed Charts */}
               <StatsCharts
                 hourlyData={stats.hourly_distribution}
                 facultyData={stats.faculty_distribution}
@@ -569,16 +656,30 @@ export const App: React.FC = () => {
         </div>
       )}
 
+      {/* ========================================================================= */}
+      {/* 5. FLOATING BACK-TO-TOP BUTTON (สะดวกสำหรับผู้สูงอายุและผู้ใช้งานทั่วไป)    */}
+      {/* ========================================================================= */}
+      {showBackToTop && !isFullscreen && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 z-40 p-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-600/30 transition-all active:scale-95 flex items-center gap-2.5 text-base font-bold animate-fadeIn"
+          title="กลับขึ้นสู่จุดบันทึกการเข้าใช้ด้านบน"
+        >
+          <ArrowUp className="w-5 h-5" />
+          <span className="hidden sm:inline">กลับขึ้นด้านบน</span>
+        </button>
+      )}
+
       {/* Clean Minimalist Footer */}
-      <footer className="border-t border-slate-200/80 bg-white/90 backdrop-blur-md py-4 text-center text-xs text-slate-500 mt-auto transition-all">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="font-medium text-slate-600">
-            ระบบสถิติการเข้าใช้ห้องสมุดอัตโนมัติ • ถอดรหัสบาร์โค้ด • ซิงก์ Google Sheets อัตโนมัติ
+      <footer className="border-t border-slate-200 bg-white py-6 text-center text-sm text-slate-500 mt-auto transition-all">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="font-semibold text-slate-700">
+            ระบบบันทึกเวลาเข้าใช้ห้องสมุดอัตโนมัติ • มหาวิทยาลัยราชภัฏศรีสะเกษ
           </p>
-          <div className="flex items-center gap-2.5 text-2xs text-slate-400 font-semibold">
+          <div className="flex items-center gap-3 text-sm text-slate-500 font-medium">
             <span>🕒 เวลาทำการ 08:00 - 16:00 น.</span>
             <span>•</span>
-            <span>⚡ ส่งยอดวันนี้ 16:30 น.</span>
+            <span>⚡ ซิงก์ Google Sheets อัตโนมัติ</span>
           </div>
         </div>
       </footer>
