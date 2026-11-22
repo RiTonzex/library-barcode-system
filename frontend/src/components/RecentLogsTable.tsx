@@ -85,7 +85,7 @@ export const RecentLogsTable: React.FC<Props> = React.memo(({ logs, apiBaseUrl }
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-indigo-600" />
+            <Clock className="w-5 h-5 text-blue-600" />
             ประวัติการสแกนเข้าห้องสมุดล่าสุด (Live Logs)
           </h3>
           <p className="text-sm text-slate-500 mt-0.5">
@@ -102,7 +102,7 @@ export const RecentLogsTable: React.FC<Props> = React.memo(({ logs, apiBaseUrl }
               placeholder="ค้นหารหัส, ชั้นปี, คณะ, สาขา..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-56 sm:w-64 pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
+              className="w-56 sm:w-64 pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-50 focus:bg-white transition-all"
             />
           </div>
 
@@ -110,7 +110,7 @@ export const RecentLogsTable: React.FC<Props> = React.memo(({ logs, apiBaseUrl }
           <select
             value={pageSize}
             onChange={(e) => setPageSize(Number(e.target.value))}
-            className="px-3 py-2 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-indigo-500 transition-all cursor-pointer"
+            className="px-3 py-2 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-blue-600 transition-all cursor-pointer"
           >
             <option value={10}>10 รายการ / หน้า</option>
             <option value={20}>20 รายการ / หน้า</option>
@@ -120,9 +120,9 @@ export const RecentLogsTable: React.FC<Props> = React.memo(({ logs, apiBaseUrl }
           {/* Export CSV */}
           <button
             onClick={handleExportCsv}
-            className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200 transition-colors shadow-2xs active:scale-95"
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-slate-700 bg-slate-50 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 rounded-xl border border-slate-200 transition-colors shadow-2xs active:scale-95"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-4 h-4 text-slate-500" />
             ส่งออก CSV
           </button>
         </div>
@@ -166,14 +166,18 @@ export const RecentLogsTable: React.FC<Props> = React.memo(({ logs, apiBaseUrl }
                       {formattedTime} น.
                     </td>
 
-                    <td className="py-3 px-4 font-mono font-bold text-indigo-700 text-base">
+                    <td className="py-3 px-4 font-mono font-bold text-blue-700 text-base">
                       {log.student_code || '-'}
                     </td>
 
                     <td className="py-3 px-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800 border border-blue-200">
-                        {log.study_year || '-'}
-                      </span>
+                      {log.study_year && log.study_year !== '-' ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                          {log.study_year}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 font-mono">-</span>
+                      )}
                     </td>
 
                     <td className="py-3 px-4 font-semibold text-slate-800">
@@ -207,7 +211,7 @@ export const RecentLogsTable: React.FC<Props> = React.memo(({ logs, apiBaseUrl }
             <>
               แสดง <span className="font-bold text-slate-800">{startIndex + 1}</span> -{' '}
               <span className="font-bold text-slate-800">{endIndex}</span> จากทั้งหมด{' '}
-              <span className="font-bold text-indigo-700">{totalItems}</span> รายการ
+              <span className="font-bold text-blue-700">{totalItems}</span> รายการ
             </>
           ) : (
             '0 รายการ'
@@ -245,7 +249,7 @@ export const RecentLogsTable: React.FC<Props> = React.memo(({ logs, apiBaseUrl }
                     onClick={() => setCurrentPage(item)}
                     className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center ${
                       isActive
-                        ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30'
+                        ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
                         : 'bg-slate-50 hover:bg-slate-200 text-slate-700 border border-slate-200/80 active:scale-95'
                     }`}
                   >

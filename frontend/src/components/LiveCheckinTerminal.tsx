@@ -91,13 +91,13 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
     latestScan.status !== 'REJECTED';
 
   return (
-    <div className="rounded-3xl border-2 border-indigo-100 bg-white shadow-sm overflow-hidden transition-all">
+    <div className="rounded-3xl border border-slate-200/90 bg-white shadow-xs overflow-hidden transition-all">
       {/* Top Hero Bar: Input & Scanner Field */}
-      <div className="p-6 sm:p-8 bg-gradient-to-r from-slate-50 via-white to-indigo-50/40 border-b border-slate-100">
+      <div className="p-6 sm:p-8 bg-gradient-to-r from-slate-50/90 via-white to-blue-50/30 border-b border-slate-100">
         {/* Title & Live Status Indicator */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/20">
+            <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-600/20">
               <Barcode className="w-7 h-7" />
             </div>
             <div>
@@ -115,8 +115,8 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
               เครื่องพร้อมใช้งาน (สแกนได้ทันที)
             </div>
           ) : (
-            <div className="flex items-center gap-2 self-start sm:self-auto px-4 py-2 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs sm:text-sm font-extrabold shadow-2xs">
-              <Keyboard className="w-4 h-4 text-indigo-600" />
+            <div className="flex items-center gap-2 self-start sm:self-auto px-4 py-2 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs sm:text-sm font-extrabold shadow-2xs">
+              <Keyboard className="w-4 h-4 text-blue-600" />
               <span>โหมดพิมพ์รหัสนักศึกษา</span>
             </div>
           )}
@@ -138,14 +138,14 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
                 setBarcodeInput(numericOnly);
               }}
               disabled={isSubmitting}
-              className="w-full px-6 sm:px-7 py-4 sm:py-5 text-xl sm:text-3xl font-mono font-black text-slate-900 bg-white border-2 border-indigo-300 hover:border-indigo-400 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 rounded-2xl shadow-inner placeholder:text-slate-300 placeholder:font-sans placeholder:font-normal placeholder:text-base sm:placeholder:text-xl transition-all"
+              className="w-full px-6 sm:px-7 py-4 sm:py-5 text-xl sm:text-3xl font-mono font-black text-slate-900 bg-slate-50/50 hover:bg-white focus:bg-white border-2 border-slate-200 hover:border-blue-300 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 rounded-2xl shadow-inner placeholder:text-slate-300 placeholder:font-sans placeholder:font-normal placeholder:text-base sm:placeholder:text-xl transition-all"
             />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting || !barcodeInput.trim()}
-            className="px-8 sm:px-10 py-4 sm:py-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-black text-base sm:text-lg flex items-center justify-center gap-3 shadow-md shadow-indigo-600/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+            className="px-8 sm:px-10 py-4 sm:py-5 rounded-2xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-black text-base sm:text-lg flex items-center justify-center gap-3 shadow-md shadow-blue-600/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
           >
             <CheckCircle2 className="w-5 h-5" />
             {isSubmitting ? 'กำลังตรวจสอบ...' : 'บันทึกการเข้า'}
@@ -222,9 +222,9 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
               <div className="px-5 py-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 flex flex-col justify-between shadow-2xs hover:border-slate-300 transition-colors h-[100px]">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-2xs font-extrabold text-slate-400 uppercase tracking-wider">รูปแบบหลักสูตร</span>
-                  <GraduationCap className="w-4 h-4 text-purple-500" />
+                  <GraduationCap className="w-4 h-4 text-blue-600" />
                 </div>
-                <p className="text-sm sm:text-base font-black text-indigo-700 leading-snug">
+                <p className="text-sm sm:text-base font-black text-blue-700 leading-snug">
                   {latestScan.degree_level || '-'}
                 </p>
               </div>
@@ -232,8 +232,8 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
           </div>
         ) : isDeviceOnline ? (
           <div className="w-full flex flex-col items-center justify-center text-center space-y-2.5">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-2xs">
-              <Scan className="w-7 h-7 text-indigo-600 animate-pulse" />
+            <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-2xs">
+              <Scan className="w-7 h-7 text-blue-600 animate-pulse" />
             </div>
             <h3 className="text-lg sm:text-xl font-black text-slate-800">
               พร้อมรับการสแกนบาร์โค้ดบัตรนักศึกษา
@@ -244,10 +244,10 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
           </div>
         ) : (
           <div className="w-full flex flex-col items-center justify-center text-center space-y-2.5">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-100/70 border border-indigo-200 flex items-center justify-center text-indigo-700 shadow-2xs">
-              <Keyboard className="w-7 h-7 text-indigo-600" />
+            <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-2xs">
+              <Keyboard className="w-7 h-7 text-blue-600" />
             </div>
-            <h3 className="text-lg sm:text-xl font-black text-indigo-950">
+            <h3 className="text-lg sm:text-xl font-black text-slate-900">
               กรุณาพิมพ์รหัสนักศึกษา 10 หลักในช่องด้านบน
             </h3>
             <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs sm:text-sm text-slate-500 font-medium max-w-2xl mx-auto pt-0.5">
@@ -255,7 +255,7 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
               <span className="text-slate-300 hidden sm:inline">•</span>
               <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
                 พิมพ์รหัส 10 หลักแล้วกด
-                <kbd className="inline-flex items-center gap-1 font-mono font-bold text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-lg shadow-2xs">
+                <kbd className="inline-flex items-center gap-1 font-mono font-bold text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-lg shadow-2xs">
                   Enter ↵
                 </kbd>
                 เพื่อเข้าห้องสมุด

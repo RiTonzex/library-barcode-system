@@ -406,7 +406,7 @@ export const App: React.FC = () => {
             {/* Modal Header */}
             <div className="flex items-center justify-between px-6 py-4.5 bg-white border-b border-slate-200/90 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-2xl bg-indigo-50 text-indigo-600">
+                <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600">
                   <BarChart3 className="w-5 h-5" />
                 </div>
                 <div>
@@ -448,7 +448,7 @@ export const App: React.FC = () => {
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                       ยอดเข้าใช้วันนี้
                     </span>
-                    <div className="p-2.5 rounded-2xl bg-indigo-50 text-indigo-600">
+                    <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600">
                       <Users className="w-5 h-5" />
                     </div>
                   </div>
