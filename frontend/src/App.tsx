@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Users,
   Sparkles,
-  Sheet,
   BookOpen,
   GraduationCap,
   Maximize,
@@ -42,7 +41,6 @@ export const App: React.FC = () => {
     last_updated: new Date().toISOString(),
   });
   const [deviceStatus, setDeviceStatus] = useState<DeviceStatus | null>(null);
-  const [isSyncingSheets, setIsSyncingSheets] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
@@ -177,7 +175,6 @@ export const App: React.FC = () => {
   // 4. WebSocket Event Callbacks (เฉพาะข้อมูลที่ถูกต้องเท่านั้นจึงจะแสดงผล)
   const handleNewScan = useCallback(
     (event: ScanEvent) => {
-      // หากข้อมูลไม่ถูกต้อง จะไม่นำมาแสดงบนการ์ดและไม่บันทึก
       if (event.status === 'INVALID' || event.status === 'REJECTED') {
         return;
       }
@@ -229,12 +226,10 @@ export const App: React.FC = () => {
       if (res.ok) {
         const data = await res.json();
 
-        // ❌ หากข้อมูลไม่ถูกต้อง/เกิน 10 หลัก: ไม่ต้องเซ็ต latestScan และไม่ต้องแสดงในกล่องข้อมูล
         if (data.status === 'INVALID' || data.status === 'REJECTED') {
           return false;
         }
 
-        // ✅ เฉพาะข้อมูลที่ถูกต้อง: นำมาแสดงบนการ์ดและเพิ่มลงตาราง
         const newEvent: ScanEvent = {
           student_code: data.student_code,
           entry_year: data.entry_year,
@@ -274,25 +269,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // 6. Manual Google Sheets Sync Trigger
-  const handleManualSheetsSync = async () => {
-    setIsSyncingSheets(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/v1/stats/sync-sheets-now`, {
-        method: 'POST',
-      });
-      if (res.ok) {
-        alert('ซิงก์ข้อมูลสรุปยอดประจำวันไปยัง Google Sheets สำเร็จเรียบร้อย!');
-      } else {
-        alert('การซิงก์เสร็จสิ้น');
-      }
-    } catch (e: any) {
-      alert(`การซิงก์ล้มเหลว: ${e.message}`);
-    } finally {
-      setIsSyncingSheets(false);
-    }
-  };
-
   const topFaculty = useMemo(() => {
     if (!stats.faculty_distribution || stats.faculty_distribution.length === 0) return null;
     return [...stats.faculty_distribution].sort((a, b) => b.count - a.count)[0];
@@ -306,80 +282,69 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans">
       {/* ========================================================================= */}
-      {/* TOP HEADER - Modern Minimal & Clean Design (สุภาพ สบายตา เหมาะกับทุกวัย) */}
+      {/* TOP HEADER - Clean, Spacious, Single-line (ไม่แน่น สบายตา)                */}
       {/* ========================================================================= */}
       <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3.5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Brand & System Title */}
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-700 to-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/15 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-700 to-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/15 shrink-0">
               <BookOpen className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-none">
                 ระบบบันทึกเวลาเข้าใช้ห้องสมุด
               </h1>
-              <p className="text-sm text-slate-500 font-medium">
+              <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
                 มหาวิทยาลัยราชภัฏศรีสะเกษ (SSKRU Library)
               </p>
             </div>
           </div>
 
-          {/* Quick Actions & Navigation Bar */}
-          <div className="flex items-center gap-2.5 flex-wrap">
-            {/* สถานะระบบเชื่อมต่อ & สถานะเครื่องสแกน */}
+          {/* Clean Single-Row Navigation (ตัดซิงก์ Sheets ออกตามคำขอ ไม่แน่น) */}
+          <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
+            {/* สถานะระบบเชื่อมต่อ & สถานะเครื่องสแกน (กะทัดรัด สบายตา) */}
             <DeviceStatusBadge
               wsConnected={isConnected}
               reconnectAttempts={reconnectAttempts}
               deviceStatus={deviceStatus}
             />
 
-            {/* ปุ่มนำทาง: สรุปสถิติ (เลื่อนจอลงไปที่ส่วนสถิติ) */}
+            {/* ปุ่มนำทาง: สรุปสถิติ */}
             <button
               onClick={() => scrollToSection('stats-section')}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl transition-all border border-blue-200/90 shadow-2xs active:scale-95"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl transition-all border border-blue-200 shadow-2xs active:scale-95 whitespace-nowrap"
               title="เลื่อนลงเพื่อดูสรุปสถิติประจำวัน"
             >
               <BarChart3 className="w-4 h-4 text-blue-600 shrink-0" />
               <span>สรุปสถิติ</span>
             </button>
 
-            {/* ปุ่มนำทาง: ประวัติการเข้า (เลื่อนจอลงไปที่ตารางประวัติ) */}
+            {/* ปุ่มนำทาง: ประวัติการเข้า */}
             <button
               onClick={() => scrollToSection('logs-section')}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl transition-all border border-slate-200/90 shadow-2xs active:scale-95"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl transition-all border border-slate-200 shadow-2xs active:scale-95 whitespace-nowrap"
               title="เลื่อนลงเพื่อดูตารางประวัติการเข้าใช้งานล่าสุด"
             >
               <Clock className="w-4 h-4 text-slate-600 shrink-0" />
               <span>ประวัติการเข้า</span>
             </button>
 
-            {/* ปุ่มส่งข้อมูล Google Sheets */}
-            <button
-              onClick={handleManualSheetsSync}
-              disabled={isSyncingSheets}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl transition-all border border-emerald-200/90 shadow-2xs active:scale-95 disabled:opacity-50"
-              title="ส่งสรุปสถิติประจำวันขึ้น Google Sheets ทันที"
-            >
-              <Sheet className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>{isSyncingSheets ? 'กำลังซิงก์...' : 'ซิงก์ Sheets'}</span>
-            </button>
-
             {/* ปุ่มเต็มจอ (Kiosk Mode) */}
             <button
               onClick={toggleFullscreen}
               title={isFullscreen ? 'ออกจากโหมดเต็มจอ' : 'เปิดโหมดเต็มจอ'}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl transition-all border border-slate-200/90 shadow-2xs active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl transition-all border border-slate-200 shadow-2xs active:scale-95 whitespace-nowrap"
             >
               {isFullscreen ? (
                 <>
                   <Minimize className="w-4 h-4 text-slate-600 shrink-0" />
-                  <span>ย่อจอ</span>
+                  <span className="hidden sm:inline">ย่อจอ</span>
                 </>
               ) : (
                 <>
                   <Maximize className="w-4 h-4 text-slate-600 shrink-0" />
-                  <span>เต็มจอ</span>
+                  <span className="hidden sm:inline">เต็มจอ</span>
                 </>
               )}
             </button>
@@ -388,10 +353,11 @@ export const App: React.FC = () => {
       </header>
 
       {/* ========================================================================= */}
-      {/* 1. ABOVE-THE-FOLD: หน้าจอแรก (แสดงเฉพาะจุดบันทึกการเข้าใช้ห้องสมุด)        */}
+      {/* 1. ABOVE-THE-FOLD: หน้าจอแรก จุดบันทึกการเข้าใช้ห้องสมุด (จัดสัดส่วนสมส่วน) */}
       {/* ========================================================================= */}
-      <section className="min-h-[calc(100vh-80px)] flex flex-col justify-between py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <div className="flex-1 flex flex-col justify-center max-w-5xl mx-auto w-full py-4">
+      <section className="flex-1 flex flex-col justify-center items-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        {/* Main Workstation Terminal Card (สัดส่วนพอเหมาะ สมส่วน ไม่ลอยเคว้ง) */}
+        <div className="w-full max-w-4xl lg:max-w-4xl xl:max-w-5xl">
           <LiveCheckinTerminal
             latestScan={latestScan}
             onScan={handleScanBarcode}
@@ -400,19 +366,19 @@ export const App: React.FC = () => {
           />
         </div>
 
-        {/* Scroll-down Invitation (แนะนำให้เลื่อนลงเพื่อดูสถิติและประวัติ) */}
+        {/* Scroll-down Invitation Button (เชื่อมต่อสายตาลงสู่สถิติและประวัติ) */}
         {!isFullscreen && (
-          <div className="fullscreen-hide flex flex-col items-center justify-center pt-2 pb-4 text-center">
+          <div className="fullscreen-hide flex flex-col items-center justify-center mt-8 sm:mt-10 text-center">
             <button
               onClick={() => scrollToSection('stats-section')}
               className="group flex flex-col items-center gap-1.5 text-slate-400 hover:text-blue-600 transition-colors focus:outline-hidden"
               title="เลื่อนลงเพื่อดูสรุปสถิติประจำวันและประวัติการเข้าใช้งาน"
             >
-              <span className="text-sm sm:text-base font-semibold tracking-wide">
+              <span className="text-xs sm:text-sm font-semibold tracking-wide">
                 เลื่อนลงเพื่อดูสรุปสถิติและประวัติการเข้าใช้งาน
               </span>
-              <div className="p-2 rounded-full bg-white border border-slate-200/80 shadow-2xs group-hover:border-blue-300 group-hover:bg-blue-50 transition-all animate-bounce">
-                <ChevronDown className="w-5 h-5 text-slate-500 group-hover:text-blue-600" />
+              <div className="p-2 rounded-full bg-white border border-slate-200 shadow-2xs group-hover:border-blue-300 group-hover:bg-blue-50 transition-all animate-bounce">
+                <ChevronDown className="w-4 h-4 text-slate-500 group-hover:text-blue-600" />
               </div>
             </button>
           </div>
@@ -439,7 +405,7 @@ export const App: React.FC = () => {
                       <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                         สรุปสถิติผู้เข้าใช้ห้องสมุดประจำวัน
                       </h2>
-                      <p className="text-base text-slate-500 font-medium mt-0.5">
+                      <p className="text-sm sm:text-base text-slate-500 font-medium mt-0.5">
                         ข้อมูลสถิติจริงจากระบบประจำวัน • รีเฟรชข้อมูลอัตโนมัติเมื่อมีการสแกน
                       </p>
                     </div>
@@ -450,7 +416,7 @@ export const App: React.FC = () => {
                   <button
                     onClick={fetchStats}
                     disabled={isRefreshingStats}
-                    className="flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all shadow-2xs active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all shadow-2xs active:scale-95 disabled:opacity-50"
                     title="รีเฟรชข้อมูลสถิติล่าสุด"
                   >
                     <RefreshCw className={`w-4 h-4 ${isRefreshingStats ? 'animate-spin' : ''}`} />
@@ -462,10 +428,10 @@ export const App: React.FC = () => {
                       setIsStatsModalOpen(true);
                       fetchStats();
                     }}
-                    className="flex items-center gap-2 px-5 py-2.5 text-base font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-sm active:scale-95"
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm sm:text-base font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-sm active:scale-95"
                     title="เปิดกราฟวิเคราะห์รายชั่วโมงและสัดส่วนคณะ"
                   >
-                    <TrendingUp className="w-5 h-5" />
+                    <TrendingUp className="w-4 h-4" />
                     <span>ดูกราฟวิเคราะห์เชิงลึก</span>
                   </button>
                 </div>
@@ -644,7 +610,6 @@ export const App: React.FC = () => {
 
             {/* Modal Body */}
             <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
-              {/* Detailed Charts */}
               <StatsCharts
                 hourlyData={stats.hourly_distribution}
                 facultyData={stats.faculty_distribution}
