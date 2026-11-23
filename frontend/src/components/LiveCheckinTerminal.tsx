@@ -11,7 +11,6 @@ import {
   GraduationCap,
   AlertCircle,
   X,
-  Sparkles,
 } from 'lucide-react';
 import { ScanEvent } from '../types';
 
@@ -276,47 +275,12 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
             </div>
           </div>
         ) : (
-          /* ⚪ สถานะสแตนด์บาย: จัดสัดส่วนสมส่วน (Proportionate & Balanced) มีคำแนะนำชัดเจน */
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* วิธีที่ 1: แตะบัตรที่เครื่องสแกน */}
-              <div className="p-5 sm:p-6 rounded-2xl bg-blue-50/50 border border-blue-100 flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-blue-500/20">
-                  <Scan className="w-6 h-6 animate-pulse" />
-                </div>
-                <div>
-                  <h4 className="text-base sm:text-lg font-bold text-blue-950">
-                    วิธีที่ 1: สแกนบัตรนักศึกษา
-                  </h4>
-                  <p className="text-sm sm:text-base text-slate-600 font-medium mt-1 leading-relaxed">
-                    นำบัตรนักศึกษามาทาบที่เครื่องสแกนบาร์โค้ด ระบบจะตรวจจับและบันทึกเวลาเข้าใช้ห้องสมุดทันทีอัตโนมัติ
-                  </p>
-                </div>
-              </div>
-
-              {/* วิธีที่ 2: พิมพ์รหัสด้วยตนเอง */}
-              <div className="p-5 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-slate-700 text-white flex items-center justify-center shrink-0 shadow-sm">
-                  <Keyboard className="w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="text-base sm:text-lg font-bold text-slate-900">
-                    วิธีที่ 2: พิมพ์รหัสนักศึกษา
-                  </h4>
-                  <p className="text-sm sm:text-base text-slate-600 font-medium mt-1 leading-relaxed">
-                    พิมพ์รหัสนักศึกษา 10 หลักในช่องด้านบน แล้วกดปุ่ม Enter บนแป้นพิมพ์ หรือกดปุ่ม 'บันทึกเวลาเข้า'
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Note / Tip for Seniors */}
-            <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs sm:text-sm text-slate-600 font-medium">
-              <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-              <span>
-                💡 ข้อแนะนำ: ตัวเลขรหัสนักศึกษาจะมี 10 หลัก สามารถพิมพ์ได้ต่อเนื่องทันทีโดยไม่ต้องเว้นวรรค
-              </span>
-            </div>
+          /* ⚪ สถานะสแตนด์บาย: เรียบง่าย สะอาดตา */
+          <div className="flex items-center justify-center gap-3 py-6 px-4 rounded-2xl bg-slate-50/80 border border-slate-200/80">
+            <Scan className="w-5 h-5 text-blue-600 animate-pulse shrink-0" />
+            <span className="text-base sm:text-lg font-semibold text-slate-700">
+              พร้อมสแกนบัตรนักศึกษา
+            </span>
           </div>
         )}
       </div>
