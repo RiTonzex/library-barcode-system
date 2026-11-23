@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   BookOpen,
+  Users,
   Maximize,
   Minimize,
   BarChart3,
@@ -170,12 +171,13 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  // Load Device Status on mount
+  // Load Device Status and basic counts on mount
   useEffect(() => {
     fetchDeviceStatus();
-  }, [fetchDeviceStatus]);
+    fetchStats();
+  }, [fetchDeviceStatus, fetchStats]);
 
-  // Load Stats & Logs ONLY when user navigates to the 'dashboard' page (ป้องกันการแล็คในหน้าหลัก)
+  // Load Stats & Logs when user navigates to the 'dashboard' page
   useEffect(() => {
     if (currentView === 'dashboard') {
       fetchStats();
@@ -196,6 +198,7 @@ export const App: React.FC = () => {
       }
 
       setLatestScan(event);
+      fetchStats();
 
       // If user is currently looking at the dashboard, update it
       if (currentView === 'dashboard') {
@@ -211,7 +214,6 @@ export const App: React.FC = () => {
           status: event.status,
         };
         setRecentLogs((prev) => [newItem, ...prev.slice(0, 299)]);
-        fetchStats();
       }
     },
     [currentView, fetchStats]
@@ -262,6 +264,7 @@ export const App: React.FC = () => {
         };
 
         setLatestScan(newEvent);
+        fetchStats();
 
         if (currentView === 'dashboard') {
           const newLog: AccessLogItem = {
@@ -276,7 +279,6 @@ export const App: React.FC = () => {
             status: data.status,
           };
           setRecentLogs((prev) => [newLog, ...prev.slice(0, 299)]);
-          fetchStats();
         }
         return true;
       } else {
@@ -381,6 +383,16 @@ export const App: React.FC = () => {
               isSubmitting={isScanning}
               isDeviceOnline={deviceStatus?.is_online ?? false}
             />
+
+            {/* Subtle Minimal Counter: นักศึกษาไม่ซ้ำคนที่เข้าวันนี้ */}
+            <div className="flex items-center justify-center gap-2 mt-4 text-xs sm:text-sm text-slate-500 font-medium select-none">
+              <Users className="w-4 h-4 text-slate-400 shrink-0" />
+              <span>ผู้เข้าใช้ห้องสมุดวันนี้:</span>
+              <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold font-mono border border-blue-200/80 text-xs sm:text-sm">
+                {stats.today_unique_students}
+              </span>
+              <span>คน</span>
+            </div>
           </div>
         </main>
       ) : (
