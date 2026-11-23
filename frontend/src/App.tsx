@@ -355,9 +355,9 @@ export const App: React.FC = () => {
       {/* ========================================================================= */}
       {/* 1. ABOVE-THE-FOLD: หน้าจอแรก จุดบันทึกการเข้าใช้ห้องสมุด (จัดสัดส่วนสมส่วน) */}
       {/* ========================================================================= */}
-      <section className="flex-1 flex flex-col justify-center items-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        {/* Main Workstation Terminal Card (สัดส่วนพอเหมาะ สมส่วน ไม่ลอยเคว้ง) */}
-        <div className="w-full max-w-4xl lg:max-w-4xl xl:max-w-5xl">
+      <section className="min-h-[calc(100vh-74px)] flex flex-col justify-between items-center py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        {/* Main Workstation Terminal Card (สัดส่วนพอเหมาะ สมส่วน อยู่กึ่งกลางหน้าแรก) */}
+        <div className="flex-1 flex flex-col justify-center items-center w-full max-w-4xl lg:max-w-4xl xl:max-w-5xl py-2">
           <LiveCheckinTerminal
             latestScan={latestScan}
             onScan={handleScanBarcode}
@@ -368,7 +368,7 @@ export const App: React.FC = () => {
 
         {/* Scroll-down Invitation Button (เชื่อมต่อสายตาลงสู่สถิติและประวัติ) */}
         {!isFullscreen && (
-          <div className="fullscreen-hide flex flex-col items-center justify-center mt-8 sm:mt-10 text-center">
+          <div className="fullscreen-hide flex flex-col items-center justify-center pt-2 pb-2 text-center">
             <button
               onClick={() => scrollToSection('stats-section')}
               className="group flex flex-col items-center gap-1.5 text-slate-400 hover:text-blue-600 transition-colors focus:outline-hidden"

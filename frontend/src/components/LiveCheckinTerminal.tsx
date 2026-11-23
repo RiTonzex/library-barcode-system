@@ -143,7 +143,7 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
                 inputMode="numeric"
                 maxLength={20}
                 autoComplete="off"
-                placeholder="พิมพ์รหัสนักศึกษา 10 หลัก (เช่น 6812732119)..."
+                placeholder="พิมพ์รหัสนักศึกษา 10 หลัก (เช่น68XXXXXXXX)..."
                 value={barcodeInput}
                 onChange={(e) => {
                   const numericOnly = e.target.value.replace(/\D/g, '').slice(0, 20);
