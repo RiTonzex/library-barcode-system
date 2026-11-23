@@ -131,7 +131,11 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
                   setBarcodeInput(numericOnly);
                 }}
                 disabled={isSubmitting}
-                className="w-full h-[62px] sm:h-[68px] pl-14 pr-12 text-2xl sm:text-3xl font-mono font-bold text-slate-900 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 rounded-2xl shadow-inner placeholder:text-slate-400 placeholder:font-sans placeholder:font-normal placeholder:text-base sm:placeholder:text-lg transition-all"
+                className={`w-full h-[62px] sm:h-[68px] pl-14 pr-12 text-2xl sm:text-3xl font-mono font-bold text-slate-900 bg-white border-2 rounded-2xl shadow-inner placeholder:text-slate-400 placeholder:font-sans placeholder:font-normal placeholder:text-base sm:placeholder:text-lg transition-all ${
+                  barcodeInput.length === 10
+                    ? 'border-blue-500 ring-4 ring-blue-100 bg-blue-50/20'
+                    : 'border-slate-300 hover:border-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-100'
+                }`}
               />
               {barcodeInput && (
                 <button
@@ -166,19 +170,36 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
 
       {/* 3. Bottom Display Area: Verified Pass OR Balanced Standby Guide */}
       <div className="p-6 sm:p-8 bg-white transition-all">
-        {isValidScan ? (
-          /* 🟢 กรณีสแกนสำเร็จ: แสดงการ์ดยืนยันตัวตนขนาดใหญ่ ชัดเจน สบายตา */
-          <div className="w-full flex flex-col justify-center gap-6 animate-fadeIn">
+        {isSubmitting ? (
+          /* 🔵 ขณะกำลังประมวลผล/สแกน: แอนิเมชันเลเซอร์สแกนและคลื่นสถานะ */
+          <div className="relative overflow-hidden flex flex-col items-center justify-center py-10 px-4 rounded-2xl bg-blue-50/70 border border-blue-200/90 shadow-inner">
+            <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent shadow-[0_0_12px_rgba(59,130,246,0.85)] animate-scan-laser pointer-events-none" />
+            <div className="flex items-center gap-3">
+              <Scan className="w-6 h-6 text-blue-600 animate-pulse shrink-0" />
+              <span className="text-base sm:text-lg font-bold text-blue-900 tracking-wide">
+                กำลังตรวจสอบและบันทึกข้อมูล...
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-blue-600/80 font-medium mt-1.5">
+              เชื่อมต่อฐานข้อมูลนักศึกษา SSKRU
+            </p>
+          </div>
+        ) : isValidScan ? (
+          /* 🟢 กรณีสแกนสำเร็จ: แสดงการ์ดยืนยันตัวตนขนาดใหญ่ ชัดเจน พร้อมแอนิเมชัน Slide-Up และ Stagger */
+          <div
+            key={`${latestScan.student_code}-${latestScan.access_time}`}
+            className="w-full flex flex-col justify-center gap-6 animate-pass-in"
+          >
             {/* Status Banner & Timestamp */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-emerald-50/90 border border-emerald-200 text-emerald-900">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-emerald-50/90 border border-emerald-200 text-emerald-900 shadow-2xs">
               <div className="flex items-center gap-2.5">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 animate-check-pop" />
                 <span className="font-bold text-base sm:text-lg">
                   ตรวจสอบข้อมูลถูกต้อง • บันทึกเวลาเข้าใช้ห้องสมุดสำเร็จ
                 </span>
               </div>
               {formattedTime && (
-                <div className="flex items-center gap-2 text-sm sm:text-base text-emerald-800 font-semibold bg-white/90 px-3.5 py-1.5 rounded-xl border border-emerald-200 self-start sm:self-auto">
+                <div className="flex items-center gap-2 text-sm sm:text-base text-emerald-800 font-semibold bg-white/90 px-3.5 py-1.5 rounded-xl border border-emerald-200 self-start sm:self-auto shadow-2xs">
                   <Clock className="w-4 h-4 text-emerald-600" />
                   <span>เวลาบันทึก: {formattedTime} น.</span>
                 </div>
@@ -204,9 +225,9 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
               </div>
             </div>
 
-            {/* 4 Metadata Cards */}
+            {/* 4 Metadata Cards with staggered entrance */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-col justify-between min-h-[110px]">
+              <div className="animate-stagger-1 p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-col justify-between min-h-[110px] hover:border-slate-300 transition-colors">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-sm font-semibold text-slate-500">คณะ</span>
                   <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
@@ -218,7 +239,7 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
                 </p>
               </div>
 
-              <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-col justify-between min-h-[110px]">
+              <div className="animate-stagger-2 p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-col justify-between min-h-[110px] hover:border-slate-300 transition-colors">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-sm font-semibold text-slate-500">สาขาวิชา</span>
                   <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
@@ -230,7 +251,7 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
                 </p>
               </div>
 
-              <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-col justify-between min-h-[110px]">
+              <div className="animate-stagger-3 p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-col justify-between min-h-[110px] hover:border-slate-300 transition-colors">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-sm font-semibold text-slate-500">ปีการศึกษาที่เข้า</span>
                   <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
@@ -242,7 +263,7 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
                 </p>
               </div>
 
-              <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-col justify-between min-h-[110px]">
+              <div className="animate-stagger-4 p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-col justify-between min-h-[110px] hover:border-slate-300 transition-colors">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-sm font-semibold text-slate-500">รูปแบบหลักสูตร</span>
                   <div className="p-2 rounded-xl bg-blue-50 text-blue-600">

@@ -56,6 +56,90 @@ body.theme-dark {
   animation: toastFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Animations for scanning and verified card display */
+@keyframes passIn {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.005);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes staggerFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scanLaser {
+  0% {
+    top: 5%;
+    opacity: 0.9;
+  }
+  50% {
+    top: 85%;
+    opacity: 1;
+  }
+  100% {
+    top: 5%;
+    opacity: 0.9;
+  }
+}
+
+.animate-pass-in {
+  animation: passIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-stagger-1 {
+  animation: staggerFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+}
+
+.animate-stagger-2 {
+  animation: staggerFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.animate-stagger-3 {
+  animation: staggerFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+.animate-stagger-4 {
+  animation: staggerFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.animate-check-pop {
+  animation: checkPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-scan-laser {
+  animation: scanLaser 1.2s ease-in-out infinite;
+}
+
 /* Hide extra dashboard sections in Fullscreen Kiosk Mode */
 @media (display-mode: fullscreen) {
   .fullscreen-hide {
