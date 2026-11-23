@@ -52,8 +52,8 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const clean = barcodeInput.trim();
-    if (!clean) {
-      setFeedback({ type: 'error', message: 'กรุณากรอกหรือสแกนรหัสนักศึกษา 10 หลัก' });
+    if (!clean || clean.length !== 10) {
+      setFeedback({ type: 'error', message: 'กรุณากรอกรหัสนักศึกษาให้ครบ 10 หลัก' });
       return;
     }
 
@@ -122,12 +122,12 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
                 ref={inputRef}
                 type="text"
                 inputMode="numeric"
-                maxLength={20}
+                maxLength={10}
                 autoComplete="off"
                 placeholder="พิมพ์รหัสนักศึกษา 10 หลัก (เช่น68XXXXXXXX)..."
                 value={barcodeInput}
                 onChange={(e) => {
-                  const numericOnly = e.target.value.replace(/\D/g, '').slice(0, 20);
+                  const numericOnly = e.target.value.replace(/\D/g, '').slice(0, 10);
                   setBarcodeInput(numericOnly);
                 }}
                 disabled={isSubmitting}
