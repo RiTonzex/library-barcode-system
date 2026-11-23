@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   Clock,
   Scan,
-  Keyboard,
   Building2,
   BookOpen,
   Calendar,
@@ -25,7 +24,7 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
   latestScan,
   onScan,
   isSubmitting = false,
-  isDeviceOnline = false,
+  isDeviceOnline: _isDeviceOnline = false,
 }) => {
   const [barcodeInput, setBarcodeInput] = useState<string>('');
   const [feedback, setFeedback] = useState<{
@@ -62,10 +61,7 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
     const success = await onScan(clean);
 
     if (success) {
-      setFeedback({
-        type: 'success',
-        message: `บันทึกข้อมูลรหัส ${clean} สำเร็จ`,
-      });
+      setFeedback({ type: null, message: '' });
       setBarcodeInput('');
       inputRef.current?.focus();
     } else {
@@ -95,33 +91,18 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
     <div className="w-full rounded-3xl border border-slate-200/90 bg-white shadow-md shadow-slate-200/50 overflow-hidden transition-all">
       {/* 1. Terminal Header Bar */}
       <div className="px-6 py-5 sm:px-8 sm:py-6 bg-gradient-to-r from-slate-50 via-white to-slate-50 border-b border-slate-200/80">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-700 to-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-600/20 shrink-0">
-              <Barcode className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                จุดบันทึกการเข้าใช้ห้องสมุด
-              </h2>
-              <p className="text-sm sm:text-base text-slate-500 font-medium">
-                แตะบัตรนักศึกษาที่เครื่องสแกน หรือพิมพ์รหัส 10 หลักแล้วกดปุ่มบันทึก
-              </p>
-            </div>
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-700 to-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-600/20 shrink-0">
+            <Barcode className="w-6 h-6" />
           </div>
-
-          {/* Mode Pill Badge */}
-          {isDeviceOnline ? (
-            <div className="flex items-center gap-2 self-start sm:self-auto px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold shadow-2xs">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>เครื่องสแกนพร้อมทำงาน</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 self-start sm:self-auto px-4 py-2 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-sm font-semibold shadow-2xs">
-              <Keyboard className="w-4 h-4 text-blue-600 shrink-0" />
-              <span>โหมดพิมพ์รหัสนักศึกษา</span>
-            </div>
-          )}
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+              จุดบันทึกการเข้าใช้ห้องสมุด
+            </h2>
+            <p className="text-sm sm:text-base text-slate-500 font-medium">
+              แตะบัตรนักศึกษาที่เครื่องสแกน หรือพิมพ์รหัส 10 หลักแล้วกดปุ่มบันทึก
+            </p>
+          </div>
         </div>
       </div>
 
@@ -285,21 +266,11 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
         )}
       </div>
 
-      {/* Floating Toast Notification */}
-      {feedback.type && feedback.message && (
+      {/* Floating Toast Notification (แสดงเฉพาะเมื่อเกิดข้อผิดพลาด เช่น รหัสไม่ถูกต้อง เพื่อไม่ให้ขึ้นซ้ำซ้อน) */}
+      {feedback.type === 'error' && feedback.message && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-toast-up">
-          <div
-            className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border text-base sm:text-lg font-bold transition-all ${
-              feedback.type === 'success'
-                ? 'bg-slate-900 text-white border-emerald-500'
-                : 'bg-slate-900 text-slate-100 border-amber-500'
-            }`}
-          >
-            {feedback.type === 'success' ? (
-              <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
-            ) : (
-              <AlertCircle className="w-6 h-6 text-amber-400 shrink-0" />
-            )}
+          <div className="flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border text-base sm:text-lg font-bold transition-all bg-slate-900 text-slate-100 border-amber-500">
+            <AlertCircle className="w-6 h-6 text-amber-400 shrink-0" />
             <span className="tracking-wide whitespace-nowrap">{feedback.message}</span>
           </div>
         </div>
