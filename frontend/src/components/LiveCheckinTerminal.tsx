@@ -266,12 +266,14 @@ export const LiveCheckinTerminal: React.FC<Props> = ({
         )}
       </div>
 
-      {/* Floating Toast Notification (แสดงเฉพาะเมื่อเกิดข้อผิดพลาด เช่น รหัสไม่ถูกต้อง เพื่อไม่ให้ขึ้นซ้ำซ้อน) */}
+      {/* Floating Toast Notification: โทนสีขาว คลีน สบายตา กลมกลืนกับธีม */}
       {feedback.type === 'error' && feedback.message && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-toast-up">
-          <div className="flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border text-base sm:text-lg font-bold transition-all bg-slate-900 text-slate-100 border-amber-500">
-            <AlertCircle className="w-6 h-6 text-amber-400 shrink-0" />
-            <span className="tracking-wide whitespace-nowrap">{feedback.message}</span>
+          <div className="flex items-center gap-3 px-6 py-3.5 rounded-2xl shadow-xl shadow-slate-300/50 border border-amber-300/90 bg-white text-slate-800 text-base sm:text-lg font-bold transition-all">
+            <div className="p-1.5 rounded-xl bg-amber-50 text-amber-600 shrink-0">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <span className="tracking-wide whitespace-nowrap text-slate-800 font-semibold">{feedback.message}</span>
           </div>
         </div>
       )}
