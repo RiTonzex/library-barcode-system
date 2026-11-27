@@ -279,16 +279,59 @@ void loop() {
         }
     }
 
-    // 2. รับค่าจาก Serial Monitor (กด 't' เพื่อเทสเสียง หรือพิมพ์รหัส 10 หลักเพื่อทดสอบส่ง)
+    // 2. รับค่าจาก Serial Monitor (กด 't' เพื่อเทสเสียงและไฟทั้งหมด หรือพิมพ์รหัส 10 หลักเพื่อทดสอบส่ง)
     if (Serial.available()) {
         String input = Serial.readStringUntil('\n');
         input.trim();
         if (input.equalsIgnoreCase("t") || input.equalsIgnoreCase("test")) {
-            Serial.println("[TEST MANUAL] ทดสอบเสียง Success Tone (ไฟเขียว)...");
-            triggerSuccess();
+            Serial.println("\n========== [TEST HARDWARE: SOUND & ALL LIGHTS] ==========");
+            
+            // สเต็ป 1: เทสไฟเขียวเดี่ยวๆ พร้อมเสียงบี๊บสูง (Success)
+            Serial.println("1/4 -> 🟢 เทสไฟเขียว (GPIO 2) + เสียงบี๊บ Success (2400Hz)...");
+            digitalWrite(PIN_LED_GREEN, HIGH);
+            digitalWrite(PIN_LED_RED, LOW);
+            tone(PIN_BUZZER, 2400, 150);
             delay(800);
-            Serial.println("[TEST MANUAL] ทดสอบเสียง Error Tone (ไฟแดง)...");
-            triggerError();
+            digitalWrite(PIN_LED_GREEN, LOW);
+            noTone(PIN_BUZZER);
+            delay(400);
+
+            // สเต็ป 2: เทสไฟแดงเดี่ยวๆ พร้อมเสียงเตือนทุ้ม ติ๊ด-ติ๊ด (Error)
+            Serial.println("2/4 -> 🔴 เทสไฟแดง (GPIO 15) + เสียงเตือน Error (800Hz x2)...");
+            digitalWrite(PIN_LED_RED, HIGH);
+            digitalWrite(PIN_LED_GREEN, LOW);
+            tone(PIN_BUZZER, 800, 150);
+            delay(200);
+            tone(PIN_BUZZER, 800, 150);
+            delay(800);
+            digitalWrite(PIN_LED_RED, LOW);
+            noTone(PIN_BUZZER);
+            delay(400);
+
+            // สเต็ป 3: เทสเปิดไฟทั้งสองดวงพร้อมกัน (เขียว + แดง ติดค้าง 1 วินาที)
+            Serial.println("3/4 -> 🟡 เทสไฟคู่ (เขียว + แดง ติดพร้อมกัน)...");
+            digitalWrite(PIN_LED_GREEN, HIGH);
+            digitalWrite(PIN_LED_RED, HIGH);
+            tone(PIN_BUZZER, 1800, 100);
+            delay(1000);
+            digitalWrite(PIN_LED_GREEN, LOW);
+            digitalWrite(PIN_LED_RED, LOW);
+            delay(300);
+
+            // สเต็ป 4: สลับไฟกะพริบไป-มา 3 รอบ (Strobe Test)
+            Serial.println("4/4 -> 🔄 เทสไฟสลับกะพริบไป-มา 3 ครั้ง...");
+            for (int i = 0; i < 3; i++) {
+                digitalWrite(PIN_LED_GREEN, HIGH);
+                digitalWrite(PIN_LED_RED, LOW);
+                delay(150);
+                digitalWrite(PIN_LED_GREEN, LOW);
+                digitalWrite(PIN_LED_RED, HIGH);
+                delay(150);
+            }
+            digitalWrite(PIN_LED_RED, LOW);
+            digitalWrite(PIN_LED_GREEN, LOW);
+
+            Serial.println("========== [TEST COMPLETED: ระบบไฟและเสียงสมบูรณ์] ==========\n");
         } else if (input.length() >= 8) {
             Serial.printf("[DEBUG SERIAL SCANNED] รหัส: %s\n", input.c_str());
             sendBarcodeScan(input.c_str());
