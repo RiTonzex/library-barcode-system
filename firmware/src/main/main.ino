@@ -18,8 +18,8 @@
 // ==============================================================================
 // CONFIGURATION (ปรับแก้ตามเครือข่ายของคุณ)
 // ==============================================================================
-const char* WIFI_SSID       = "lnwpoon";
-const char* WIFI_PASSWORD   = "0620401150";
+const char* WIFI_SSID       = "PRAPAI2WiFi_2G";
+const char* WIFI_PASSWORD   = "0874492810";
 
 // Server API Endpoint (Render หรือ Local FastAPI)
 const char* SERVER_BASE_URL = "http://192.168.1.100:8000";
@@ -225,6 +225,17 @@ void setup() {
     digitalWrite(PIN_LED_RED, LOW);
     noTone(PIN_BUZZER);
 
+    // 🔊 [TEST ROUTINE] ทดสอบเสียง Buzzer และไฟ LED ทันทีตอนบูต
+    Serial.println("[TEST] กำลังทดสอบเสียง Passive Buzzer (Success Tone 2400Hz)...");
+    triggerSuccess();
+    delay(1000);
+
+    Serial.println("[TEST] กำลังทดสอบเสียง Passive Buzzer (Error Tone 800Hz x2)...");
+    triggerError();
+    delay(1000);
+    Serial.println("[TEST] ทดสอบเสียงเรียบร้อยแล้ว!");
+    Serial.println("👉 คุณสามารถพิมพ์ตัวอักษร 't' ใน Serial Monitor แล้วกด Enter เพื่อเทสเสียงได้ตลอดเวลา");
+
     // 3. เชื่อมต่อ Wi-Fi
     connectWifi();
 }
@@ -268,13 +279,19 @@ void loop() {
         }
     }
 
-    // 2. รับค่าจาก Serial Monitor (Fallback สำหรับทดสอบพิมพ์ผ่าน USB คอมพิวเตอร์)
+    // 2. รับค่าจาก Serial Monitor (กด 't' เพื่อเทสเสียง หรือพิมพ์รหัส 10 หลักเพื่อทดสอบส่ง)
     if (Serial.available()) {
-        String barcode = Serial.readStringUntil('\n');
-        barcode.trim();
-        if (barcode.length() >= 8) {
-            Serial.printf("[DEBUG SERIAL SCANNED] รหัส: %s\n", barcode.c_str());
-            sendBarcodeScan(barcode.c_str());
+        String input = Serial.readStringUntil('\n');
+        input.trim();
+        if (input.equalsIgnoreCase("t") || input.equalsIgnoreCase("test")) {
+            Serial.println("[TEST MANUAL] ทดสอบเสียง Success Tone (ไฟเขียว)...");
+            triggerSuccess();
+            delay(800);
+            Serial.println("[TEST MANUAL] ทดสอบเสียง Error Tone (ไฟแดง)...");
+            triggerError();
+        } else if (input.length() >= 8) {
+            Serial.printf("[DEBUG SERIAL SCANNED] รหัส: %s\n", input.c_str());
+            sendBarcodeScan(input.c_str());
         }
     }
 }
