@@ -20,23 +20,31 @@
 // ==============================================================================
 // CONFIGURATION (ปรับแก้ตามเครือข่ายของคุณ)
 // ==============================================================================
-const char* WIFI_SSID       = "YOUR_WIFI_SSID";
-const char* WIFI_PASSWORD   = "YOUR_WIFI_PASSWORD";
+const char* WIFI_SSID       = "lnwpoon";
+const char* WIFI_PASSWORD   = "0620401150";
 
 // Server API Endpoint
 const char* SERVER_BASE_URL = "http://192.168.1.100:8000";
 const char* DEVICE_API_KEY  = "lib_esp32_secret_key_prod_998877";
 const char* DEVICE_ID       = "ESP32_LIBRARY_SCANNER_01";
 
-// Pin Definitions
+// ==============================================================================
+// GM805-S BARCODE SCANNER (UART2) & STATUS PINS
+// ==============================================================================
+// GM805-S เชื่อมต่อผ่าน HardwareSerial (Serial2)
+#define PIN_GM805S_RX    16   // ESP32 RX2 (ต่อเข้ากับขา TXD ของ GM805-S)
+#define PIN_GM805S_TX    17   // ESP32 TX2 (ต่อเข้ากับขา RXD ของ GM805-S)
+#define GM805S_BAUD      9600 // ค่า Baud rate เริ่มต้นจากโรงงานของ GM805-S
+
+#define PIN_LED_GREEN    2    // ไฟ LED แจ้งสถานะสแกนสำเร็จ (GPIO 2 หรือ Onboard LED)
+#define PIN_BUZZER       4    // Active Buzzer (เสียงบี๊บ 80ms เมื่อบันทึกสำเร็จ)
+
+// Pin Definitions for Optional RC522 RFID
 #define PIN_RC522_SS     5    // RC522 SDA
 #define PIN_RC522_RST    22   // RC522 RST
 #define PIN_RC522_SCK    18   // SPI SCK
 #define PIN_RC522_MISO   19   // SPI MISO
 #define PIN_RC522_MOSI   23   // SPI MOSI
-
-#define PIN_LED_GREEN    16   // ไฟแจ้งสถานะสแกนสำเร็จ
-#define PIN_BUZZER       4    // Active Buzzer
 
 MFRC522 mfrc522(PIN_RC522_SS, PIN_RC522_RST);
 
@@ -176,9 +184,14 @@ void sendHeartbeat() {
 }
 
 void setup() {
-    Serial.begin(115200);
-    delay(1000);
-    Serial.println("\n--- ระบบสแกนสถิติห้องสมุด (ESP32) ---");
+    Serial.begin(115200); // Debug USB Serial Monitor
+    delay(500);
+    Serial.println("\n--- ระบบสแกนสถิติห้องสมุด (ESP32 + GM805-S) ---");
+
+    // กำหนดค่าพอร์ตสื่อสาร UART2 สำหรับ GM805-S Barcode Scanner
+    Serial2.begin(GM805S_BAUD, SERIAL_8N1, PIN_GM805S_RX, PIN_GM805S_TX);
+    Serial2.setTimeout(50); // Timeout สั้น ตอบสนองรวดเร็ว ไม่กระตุก
+    Serial.printf("[HARDWARE] GM805-S พร้อมใช้งานที่ %d baud (RX: GPIO %d, TX: GPIO %d)\n", GM805S_BAUD, PIN_GM805S_RX, PIN_GM805S_TX);
 
     pinMode(PIN_LED_GREEN, OUTPUT);
     pinMode(PIN_BUZZER, OUTPUT);
@@ -217,17 +230,30 @@ void loop() {
         isLedActive = false;
     }
 
-    // 1. รับค่าจากเครื่องสแกนบาร์โค้ดผ่าน Serial (ถ้าต่อเครื่องสแกน USB / UART Barcode)
-    if (Serial.available()) {
-        String barcode = Serial.readStringUntil('\n');
+    // 1. รับค่าจากเครื่องสแกนบาร์โค้ด GM805-S ผ่าน HardwareSerial (Serial2)
+    if (Serial2.available()) {
+        String barcode = Serial2.readStringUntil('\r');
         barcode.trim();
+        while (barcode.length() > 0 && (barcode[0] == '\n' || barcode[0] == '\r')) {
+            barcode.remove(0, 1);
+        }
         if (barcode.length() >= 8) {
-            Serial.printf("[BARCODE SCANNED] %s\n", barcode.c_str());
+            Serial.printf("[GM805-S SCANNED] รหัส: %s\n", barcode.c_str());
             sendBarcodeScan(barcode.c_str());
         }
     }
 
-    // 2. รับค่าจากบัตร RFID (กรณีแตะบัตร Mifare)
+    // 2. รับค่าจาก Serial Monitor (Fallback สำหรับทดสอบพิมพ์ผ่าน USB คอมพิวเตอร์)
+    if (Serial.available()) {
+        String barcode = Serial.readStringUntil('\n');
+        barcode.trim();
+        if (barcode.length() >= 8) {
+            Serial.printf("[DEBUG SERIAL SCANNED] รหัส: %s\n", barcode.c_str());
+            sendBarcodeScan(barcode.c_str());
+        }
+    }
+
+    // 3. รับค่าจากบัตร RFID (กรณีแตะบัตร Mifare เสริม)
     if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
         String cardUid = "";
         for (byte i = 0; i < mfrc522.uid.size; i++) {

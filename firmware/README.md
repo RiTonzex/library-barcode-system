@@ -1,38 +1,55 @@
-# ESP32 Library Access Control - Hardware & Flashing Guide
+# ESP32 & GM805-S Library Access Control - Hardware & Flashing Guide
 
-## 1. Pin Connection & Schematic
-
-| Component | Pin Label | ESP32 GPIO | Notes |
-| :--- | :--- | :--- | :--- |
-| **RC522 RFID** | VCC | 3.3V | **Do NOT connect to 5V!** |
-| | RST | GPIO 22 | Reset Pin |
-| | GND | GND | Ground |
-| | MISO | GPIO 19 | SPI MISO |
-| | MOSI | GPIO 23 | SPI MOSI |
-| | SCK | GPIO 18 | SPI Clock |
-| | SDA (SS) | GPIO 5 | Chip Select |
-| **Green LED** | Anode (+) | GPIO 16 | Current limit resistor 220Ω to GND |
-| **Red LED** | Anode (+) | GPIO 17 | Current limit resistor 220Ω to GND |
-| **Active Buzzer** | (+) Pin | GPIO 4 | (-) to GND |
-| **Relay Module** | Signal (IN) | GPIO 2 | VCC to 5V (VIN), GND to GND |
+ระบบบันทึกการเข้าใช้ห้องสมุดรองรับโมดูลเครื่องสแกนบาร์โค้ด & QR Code รุ่น **GROW GM805-S (1D/2D CMOS Reader)** 
 
 ---
 
-## 2. PlatformIO Configuration & Upload
+## 🎯 รูปแบบการใช้งาน GM805-S (เลือกใช้งานได้ 2 รูปแบบ)
 
-1. Install **Visual Studio Code** and the **PlatformIO IDE** extension.
-2. Open the `firmware/` directory in VS Code.
-3. Edit `src/main.cpp` to configure:
-   - `WIFI_SSID`: Your Wi-Fi network name.
-   - `WIFI_PASSWORD`: Your Wi-Fi password.
-   - `SERVER_BASE_URL`: IP or domain of your FastAPI Backend (e.g. `http://192.168.1.50:8000`).
-   - `DEVICE_API_KEY`: Must match `DEVICE_API_KEY` in backend `.env`.
-4. Connect the ESP32 board to your computer via USB.
-5. Click the **PlatformIO: Upload** arrow icon in the bottom status bar, or run:
-   ```bash
-   pio run --target upload
-   ```
-6. Open the serial monitor at **115200 baud** to see live boot and scan logs:
-   ```bash
-   pio device monitor
-   ```
+### 📌 รูปแบบที่ 1: เสียบสาย USB เข้าคอมพิวเตอร์ / โน้ตบุ๊กโดยตรง (USB HID Mode - ง่ายที่สุด)
+- หากสายของ GM805-S มีหัวแปลงเป็นพอร์ต USB เสียบเข้าคอมพิวเตอร์ที่เปิดหน้าเว็บระบบ Kiosk (`https://library-barcode-system.vercel.app`) ได้ทันที
+- ตัวโมดูลจะทำงานเป็น **USB Keyboard** อัตโนมัติ: เมื่อยิงบาร์โค้ดบัตรนักศึกษา มันจะพิมพ์รหัส 10 หลักลงช่องค้นหาและกด `Enter` ให้ทันที **โดยไม่ต้องใช้บอร์ด ESP32**
+
+---
+
+### 📌 รูปแบบที่ 2: ต่อเข้ากับบอร์ด ESP32 ผ่าน UART (Standalone Wi-Fi Kiosk)
+- เหมาะสำหรับทำเป็นกล่องอุปกรณ์ IoT สแตนด์อโลน ยิงข้อมูลผ่าน Wi-Fi ขึ้นเซิร์ฟเวอร์โดยตรง มีระบบออฟไลน์คิวเมื่อเน็ตหลุด
+
+#### 1. แผนภาพการต่อสาย (Wiring Diagram)
+
+| ขาโมดูล GM805-S (6-Pin UART) | ขาบนบอร์ด ESP32 | คำอธิบาย |
+| :--- | :--- | :--- |
+| **Pin 1 (VCC)** | **VIN / 5V** | ไฟเลี้ยง 5V (แนะนำ 5V เพื่อให้เซนเซอร์กล้องและไฟ LED สแกนติดสว่างเสถียร) |
+| **Pin 4 (RXD)** | **GPIO 17 (TX2)** | ส่งคำสั่งตั้งค่าจาก ESP32 ไปยัง GM805-S |
+| **Pin 5 (TXD)** | **GPIO 16 (RX2)** | ส่งข้อมูลรหัสบาร์โค้ดที่สแกนได้เข้า ESP32 |
+| **Pin 6 (GND)** | **GND** | กราวด์ร่วม |
+
+> **หมายเหตุ:** Pin 2 (D-) และ Pin 3 (D+) บน GM805-S เป็นสัญญาณ USB ไม่ต้องต่อเมื่อใช้งานในโหมด UART
+
+#### 2. อุปกรณ์แจ้งเตือนสถานะ & ส่วนเสริม (Peripherals)
+
+| อุปกรณ์ | ขาอุปกรณ์ | ESP32 GPIO | หมายเหตุ |
+| :--- | :--- | :--- | :--- |
+| **Green LED** | ขั้วบวก Anode (+) | **GPIO 2** | ตัวต้านทาน 220Ω อนุกรมลง GND (หรือใช้ Onboard LED) |
+| **Active Buzzer** | ขั้วบวก (+) | **GPIO 4** | ขั้วลบ (-) ลง GND (บี๊บ 80ms เมื่อบันทึกสำเร็จ) |
+| **RC522 RFID (เสริม)** | SDA / SCK / MOSI / MISO / RST | **5 / 18 / 23 / 19 / 22** | SPI Interface (VCC ต่อ 3.3V ห้ามต่อ 5V) |
+
+---
+
+## ⚙️ การตั้งค่าโมดูล GM805-S
+
+1. **Baud Rate:** เฟิร์มแวร์ตั้งไว้ที่ **9600 bps** (ค่ามาตรฐานจากโรงงานของ GM805-S)
+2. **โหมดการยิงสแกน (Scan Mode):**
+   - แนะนำตั้งเป็น **Auto-Sensing Mode (ตรวจจับวัตถุอัตโนมัติ)** หรือ **Continuous Mode (เปิดไฟรอสแกนตลอดเวลา)** ผ่านคู่มือ Barcode Config ของ GM805-S เพื่อให้นักศึกษายื่นบัตรมาทาบแล้วเครื่องอ่านทันทีโดยไม่ต้องกดปุ่ม Trigger
+
+---
+
+## 🚀 การแฟลชโค้ดลง ESP32 (Arduino IDE / PlatformIO)
+
+1. เปิดไฟล์ `src/main.ino` ใน Arduino IDE หรือ `firmware/` ใน VS Code PlatformIO
+2. ตรวจสอบการตั้งค่าในโค้ด:
+   - `WIFI_SSID`: ชื่อ Wi-Fi
+   - `WIFI_PASSWORD`: รหัสผ่าน Wi-Fi
+   - `SERVER_BASE_URL`: โดเมนหรือ IP ของ Backend (เช่น `https://library-backend-e2ix.onrender.com` หรือ `http://192.168.1.100:8000`)
+   - `DEVICE_API_KEY`: API Key ให้ตรงกับฝั่ง Backend
+3. อัปโหลดลง ESP32 แล้วเปิด Serial Monitor ที่ **115200 baud** เพื่อดูการทำงานสด
